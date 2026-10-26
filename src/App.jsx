@@ -4,7 +4,7 @@ import Footer from "./components/Footer/Footer.jsx";
 import Hero from "./components/Hero/Hero";
 import Estrenos from "./components/Estrenos/Estrenos.jsx";
 import Normas from "./components/Normas/Normas.jsx";
-import ComoLlegar from "./components/ComoLlegar/ComoLlegar.jsx";
+import ComoLlegar from "./components/Comollegar/Comollegar.jsx";
 import Login from "./components/Login/Login";
 
 function App() {
