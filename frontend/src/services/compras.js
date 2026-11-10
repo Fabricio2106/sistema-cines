@@ -1,5 +1,4 @@
 import { supabase } from "./supabase";
-import { SALAS } from "../data/peliculas";
 
 const aCompra = (fila) => ({
   id: fila.id,
@@ -25,15 +24,13 @@ export const asientosOcupados = async (peliculaId, funcionId) => {
   return data ?? [];
 };
 
+// El servidor toma título, hora, sala y precio de la cartelera; el navegador
+// solo dice qué función y qué butacas.
 export const crearCompra = async ({ pelicula, funcion, asientos }) => {
   const { data, error } = await supabase.rpc("crear_compra", {
     p_pelicula_id: pelicula.id,
-    p_titulo: pelicula.titulo,
     p_funcion_id: funcion.id,
-    p_hora: funcion.hora,
-    p_sala: SALAS[funcion.sala].nombre,
     p_asientos: asientos,
-    p_total: asientos.length * funcion.precio,
   });
   if (error) throw new Error(error.message);
   return aCompra(data);

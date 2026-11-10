@@ -5,12 +5,18 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 import { Link } from "react-router-dom";
-import { peliculas } from "../../data/peliculas";
-
-// Solo películas con banner horizontal
-const destacadas = peliculas.filter((p) => p.banner).slice(0, 5);
+import { useCartelera } from "../../context/CarteleraContext";
 
 export default function Hero() {
+  const { peliculas, cargando } = useCartelera();
+  // Solo películas con banner horizontal
+  const destacadas = peliculas.filter((p) => p.banner).slice(0, 5);
+
+  if (destacadas.length === 0) {
+    // Reserva el espacio del carrusel mientras carga para que la página no salte
+    return <section id="inicio" className={cargando ? "mt-16 h-[420px] sm:h-[560px]" : "mt-16"} />;
+  }
+
   return (
     <section id="inicio" className="mt-16 w-full" aria-label="Películas destacadas">
       <Swiper
@@ -41,9 +47,11 @@ export default function Hero() {
                     <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
                       {pelicula.genero}
                     </span>
-                    <span className="bg-accent-500 text-black px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
-                      {pelicula.clasificacion}
-                    </span>
+                    {pelicula.clasificacion && (
+                      <span className="bg-accent-500 text-black px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
+                        {pelicula.clasificacion}
+                      </span>
+                    )}
                   </div>
 
                   <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-3 drop-shadow-lg">

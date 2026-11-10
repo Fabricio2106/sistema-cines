@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { CarteleraProvider } from "./context/CarteleraContext.jsx";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer.jsx";
 import ScrollToHash from "./components/ScrollToHash/ScrollToHash.jsx";
@@ -22,6 +23,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <CarteleraProvider>
         <ScrollToHash />
         <Navbar />
         <Suspense fallback={<Cargando />}>
@@ -36,6 +38,7 @@ function App() {
           </Routes>
         </Suspense>
         <Footer />
+        </CarteleraProvider>
       </AuthProvider>
     </BrowserRouter>
   );

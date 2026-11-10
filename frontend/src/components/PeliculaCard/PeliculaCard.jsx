@@ -21,9 +21,11 @@ const PeliculaCard = ({ pelicula }) => {
           <span className="bg-primary-600 text-white text-xs px-3 py-1 rounded-full font-bold shadow">
             {genero}
           </span>
-          <span className="bg-accent-500 text-black text-xs px-3 py-1 rounded-full font-bold shadow">
-            {clasificacion}
-          </span>
+          {clasificacion && (
+            <span className="bg-accent-500 text-black text-xs px-3 py-1 rounded-full font-bold shadow">
+              {clasificacion}
+            </span>
+          )}
         </div>
       </Link>
 

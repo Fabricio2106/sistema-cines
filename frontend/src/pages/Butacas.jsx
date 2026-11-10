@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { buscarPelicula, SALAS } from "../data/peliculas";
+import { useCartelera } from "../context/CarteleraContext";
 import { asientosOcupados } from "../services/compras";
 
 const estilos = {
@@ -12,8 +12,10 @@ const estilos = {
 const Butacas = () => {
   const { id, funcionId } = useParams();
   const navigate = useNavigate();
+  const { buscarPelicula, salas, cargando } = useCartelera();
   const pelicula = buscarPelicula(id);
   const funcion = pelicula?.funciones.find((f) => f.id === funcionId);
+  const sala = funcion && salas[funcion.sala];
   const [seleccion, setSeleccion] = useState([]);
   const [ocupadas, setOcupadas] = useState([]);
 
@@ -30,7 +32,13 @@ const Butacas = () => {
     };
   }, [id, funcionId]);
 
-  if (!pelicula || !funcion) {
+  if (cargando) {
+    return (
+      <main className="min-h-screen flex items-center justify-center text-surface-400">Cargando…</main>
+    );
+  }
+
+  if (!pelicula || !funcion || !sala) {
     return (
       <main className="min-h-screen pt-32 px-6 text-center text-white">
         <h1 className="text-3xl font-bold mb-4">Función no encontrada</h1>
@@ -41,7 +49,6 @@ const Butacas = () => {
     );
   }
 
-  const sala = SALAS[funcion.sala];
   const total = seleccion.length * funcion.precio;
 
   const alternar = (asiento) => {

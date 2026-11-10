@@ -1,9 +1,16 @@
 import { Link, useParams } from "react-router-dom";
-import { buscarPelicula, SALAS } from "../data/peliculas";
+import { useCartelera } from "../context/CarteleraContext";
 
 const Pelicula = () => {
   const { id } = useParams();
+  const { buscarPelicula, salas, cargando } = useCartelera();
   const pelicula = buscarPelicula(id);
+
+  if (cargando) {
+    return (
+      <main className="min-h-screen flex items-center justify-center text-surface-400">Cargando…</main>
+    );
+  }
 
   if (!pelicula) {
     return (
@@ -30,9 +37,11 @@ const Pelicula = () => {
         <div>
           <div className="flex gap-2 mb-3">
             <span className="bg-primary-600 text-xs px-3 py-1 rounded-full font-bold">{genero}</span>
-            <span className="bg-accent-500 text-black text-xs px-3 py-1 rounded-full font-bold">
-              {clasificacion}
-            </span>
+            {clasificacion && (
+              <span className="bg-accent-500 text-black text-xs px-3 py-1 rounded-full font-bold">
+                {clasificacion}
+              </span>
+            )}
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">{titulo}</h1>
           <p className="text-surface-300 mb-8">{descripcion}</p>
@@ -50,7 +59,7 @@ const Pelicula = () => {
                   >
                     <span>
                       <span className="block text-lg font-bold">{f.hora}</span>
-                      <span className="text-xs text-surface-400">{SALAS[f.sala].nombre}</span>
+                      <span className="text-xs text-surface-400">{salas[f.sala]?.nombre}</span>
                     </span>
                     <span className="text-accent-400 font-bold">S/ {f.precio}</span>
                   </Link>

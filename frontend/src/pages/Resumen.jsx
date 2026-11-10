@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { buscarPelicula, SALAS } from "../data/peliculas";
+import { useCartelera } from "../context/CarteleraContext";
 import { crearCompra } from "../services/compras";
 
 const Resumen = () => {
@@ -9,9 +9,16 @@ const Resumen = () => {
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
 
+  const { buscarPelicula, salas, cargando } = useCartelera();
   const pelicula = buscarPelicula(state?.peliculaId);
   const funcion = pelicula?.funciones.find((f) => f.id === state?.funcionId);
   const asientos = state?.asientos ?? [];
+
+  if (cargando) {
+    return (
+      <main className="min-h-screen flex items-center justify-center text-surface-400">Cargando…</main>
+    );
+  }
 
   if (!pelicula || !funcion || asientos.length === 0) {
     return <Navigate to="/#estrenos" replace />;
@@ -34,7 +41,7 @@ const Resumen = () => {
 
   const filas = [
     ["Película", pelicula.titulo],
-    ["Función", `${funcion.hora} · ${SALAS[funcion.sala].nombre}`],
+    ["Función", `${funcion.hora} · ${salas[funcion.sala]?.nombre}`],
     ["Butacas", asientos.join(", ")],
     ["Precio por entrada", `S/ ${funcion.precio}`],
     ["Cantidad", asientos.length],

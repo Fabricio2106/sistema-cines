@@ -1,4 +1,5 @@
--- Esquema de Multicines Iquitos. Se pega completo en Supabase → SQL Editor → Run.
+-- Esquema de Multicines Iquitos (compras y butacas). Va primero; luego cartelera.sql.
+-- Se pega completo en Supabase → SQL Editor → Run.
 -- Se puede ejecutar más de una vez sin romper nada.
 
 -- ── Tablas ──────────────────────────────────────────────────────────────
@@ -63,55 +64,8 @@ as $$
     and fecha = (now() at time zone 'America/Lima')::date;
 $$;
 
--- Crea la compra y reserva las butacas en una sola transacción.
-create or replace function public.crear_compra(
-  p_pelicula_id text,
-  p_titulo      text,
-  p_funcion_id  text,
-  p_hora        text,
-  p_sala        text,
-  p_asientos    text[],
-  p_total       integer
-)
-returns public.compras
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  v_user  uuid := auth.uid();
-  v_hoy   date := (now() at time zone 'America/Lima')::date;
-  v_compra public.compras;
-  v_asiento text;
-begin
-  if v_user is null then
-    raise exception 'Debes iniciar sesión para comprar';
-  end if;
-  if coalesce(array_length(p_asientos, 1), 0) = 0 then
-    raise exception 'Elige al menos una butaca';
-  end if;
-
-  insert into public.compras
-    (user_id, codigo, pelicula_id, titulo, funcion_id, hora, sala, asientos, total, fecha)
-  values
-    (v_user, upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8)),
-     p_pelicula_id, p_titulo, p_funcion_id, p_hora, p_sala, p_asientos, p_total, v_hoy)
-  returning * into v_compra;
-
-  foreach v_asiento in array p_asientos loop
-    begin
-      insert into public.compra_asientos (compra_id, pelicula_id, funcion_id, fecha, asiento)
-      values (v_compra.id, p_pelicula_id, p_funcion_id, v_hoy, v_asiento);
-    exception when unique_violation then
-      raise exception 'La butaca % ya no está disponible', v_asiento;
-    end;
-  end loop;
-
-  return v_compra;
-end;
-$$;
+-- La función crear_compra() vive en cartelera.sql, porque calcula el precio
+-- con los datos de las funciones.
 
 revoke all on function public.asientos_ocupados(text, text) from public;
-revoke all on function public.crear_compra(text, text, text, text, text, text[], integer) from public;
 grant execute on function public.asientos_ocupados(text, text) to anon, authenticated;
-grant execute on function public.crear_compra(text, text, text, text, text, text[], integer) to authenticated;
