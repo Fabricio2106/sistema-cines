@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../../assets/logocine.png";
+import { useAuth } from "../../context/AuthContext";
 
 const navbarLinks = [
   { id: 1, title: "Inicio", link: "/" },
@@ -13,6 +14,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { pathname, hash } = useLocation();
+  const { usuario, salir } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -72,13 +74,30 @@ const Navbar = () => {
           >
             <i className="bi bi-facebook" />
           </a>
-          <NavLink
-            to="/login"
-            className="flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-black font-bold px-5 py-2 rounded-full transition-colors"
-          >
-            <i className="bi bi-person-circle" />
-            Ingresar
-          </NavLink>
+          {usuario ? (
+            <>
+              <NavLink to="/mis-entradas" className={`${claseLink("/mis-entradas")} text-sm`}>
+                Mis entradas
+              </NavLink>
+              <button
+                type="button"
+                onClick={salir}
+                title={usuario.email}
+                className="flex items-center gap-2 border-2 border-accent-500 text-accent-400 hover:bg-accent-500 hover:text-black font-bold px-4 py-1.5 rounded-full transition-colors"
+              >
+                <i className="bi bi-box-arrow-right" />
+                Salir
+              </button>
+            </>
+          ) : (
+            <NavLink
+              to="/login"
+              className="flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-black font-bold px-5 py-2 rounded-full transition-colors"
+            >
+              <i className="bi bi-person-circle" />
+              Ingresar
+            </NavLink>
+          )}
         </div>
 
         {/* Botón de menú móvil */}
@@ -127,13 +146,29 @@ const Navbar = () => {
           >
             <i className="bi bi-facebook" />
           </a>
-          <Link
-            to="/login"
-            className="flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-black font-bold px-6 py-2 rounded-full transition-colors"
-          >
-            <i className="bi bi-person-circle" />
-            Ingresar
-          </Link>
+          {usuario ? (
+            <>
+              <Link to="/mis-entradas" className="text-white font-medium hover:text-accent-400">
+                Mis entradas
+              </Link>
+              <button
+                type="button"
+                onClick={salir}
+                className="flex items-center gap-2 border-2 border-accent-500 text-accent-400 font-bold px-5 py-1.5 rounded-full"
+              >
+                <i className="bi bi-box-arrow-right" />
+                Salir
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-black font-bold px-6 py-2 rounded-full transition-colors"
+            >
+              <i className="bi bi-person-circle" />
+              Ingresar
+            </Link>
+          )}
         </div>
       </div>
     </nav>

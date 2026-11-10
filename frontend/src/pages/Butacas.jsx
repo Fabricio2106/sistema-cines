@@ -1,9 +1,7 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { buscarPelicula, SALAS } from "../data/peliculas";
-
-// Butacas ocupadas de ejemplo; vendrán del backend cuando exista.
-const OCUPADAS = ["B5", "C7", "D3"];
+import { asientosOcupados } from "../services/compras";
 
 const estilos = {
   libre: "bg-surface-700 hover:bg-primary-500 text-white",
@@ -13,9 +11,24 @@ const estilos = {
 
 const Butacas = () => {
   const { id, funcionId } = useParams();
+  const navigate = useNavigate();
   const pelicula = buscarPelicula(id);
   const funcion = pelicula?.funciones.find((f) => f.id === funcionId);
   const [seleccion, setSeleccion] = useState([]);
+  const [ocupadas, setOcupadas] = useState([]);
+
+  useEffect(() => {
+    let activo = true;
+    asientosOcupados(id, funcionId).then((lista) => {
+      if (!activo) return;
+      setOcupadas(lista);
+      // Si alguien compró una butaca que tenías elegida, se quita de tu selección
+      setSeleccion((prev) => prev.filter((a) => !lista.includes(a)));
+    });
+    return () => {
+      activo = false;
+    };
+  }, [id, funcionId]);
 
   if (!pelicula || !funcion) {
     return (
@@ -32,7 +45,7 @@ const Butacas = () => {
   const total = seleccion.length * funcion.precio;
 
   const alternar = (asiento) => {
-    if (OCUPADAS.includes(asiento)) return;
+    if (ocupadas.includes(asiento)) return;
     setSeleccion((prev) =>
       prev.includes(asiento) ? prev.filter((a) => a !== asiento) : [...prev, asiento]
     );
@@ -60,7 +73,7 @@ const Butacas = () => {
               <span className="w-5 text-xs text-surface-400">{fila}</span>
               {Array.from({ length: sala.asientosPorFila }, (_, i) => {
                 const asiento = `${fila}${i + 1}`;
-                const ocupada = OCUPADAS.includes(asiento);
+                const ocupada = ocupadas.includes(asiento);
                 const elegida = seleccion.includes(asiento);
                 return (
                   <button
@@ -106,7 +119,11 @@ const Butacas = () => {
           <button
             type="button"
             disabled={seleccion.length === 0}
-            onClick={() => alert(`Butacas: ${seleccion.join(", ")}\nTotal: S/ ${total}`)}
+            onClick={() =>
+              navigate("/resumen", {
+                state: { peliculaId: pelicula.id, funcionId: funcion.id, asientos: seleccion },
+              })
+            }
             className="px-6 py-3 rounded-full font-bold bg-accent-500 hover:bg-accent-600 text-black disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Continuar
