@@ -6,6 +6,8 @@ import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer.jsx";
 import ScrollToHash from "./components/ScrollToHash/ScrollToHash.jsx";
 import RutaPrivada from "./components/RutaPrivada/RutaPrivada.jsx";
+import ErrorConfiguracion from "./components/ErrorConfiguracion/ErrorConfiguracion.jsx";
+import { configurado } from "./services/supabase.js";
 import Inicio from "./pages/Inicio.jsx";
 
 const Pelicula = lazy(() => import("./pages/Pelicula.jsx"));
@@ -20,6 +22,8 @@ const Cargando = () => (
 );
 
 function App() {
+  if (!configurado) return <ErrorConfiguracion />;
+
   return (
     <BrowserRouter>
       <AuthProvider>
