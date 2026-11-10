@@ -12,7 +12,7 @@ import dragonBanner from "../assets/portadadragon.webp";
 // Datos de ejemplo: horarios, salas, precios y clasificación deben
 // confirmarse con la cartelera real antes de publicar.
 // `poster` es vertical (2:3); `banner` es horizontal. Si falta el póster,
-// las tarjetas usan el banner.
+// las tarjetas usan el banner. Sin banner, la película no sale en el Hero.
 export const SALAS = {
   1: { nombre: "Sala 1", filas: ["A", "B", "C", "D", "E"], asientosPorFila: 12 },
   2: { nombre: "Sala 2", filas: ["A", "B", "C", "D"], asientosPorFila: 10 },
@@ -65,7 +65,7 @@ export const peliculas = [
     genero: "Comedia",
     clasificacion: "ATP",
     poster: freakierPoster,
-    banner: freakierPoster,
+    banner: null,
     descripcion: "Jamie Lee Curtis y Lindsay Lohan regresan en la secuela de Disney.",
     funciones: [
       { id: "f1", hora: "16:00", sala: 2, precio: 15 },
