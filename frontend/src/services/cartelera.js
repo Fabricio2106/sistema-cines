@@ -8,6 +8,7 @@ const aPelicula = (fila) => ({
   descripcion: fila.descripcion,
   poster: fila.poster_url,
   banner: fila.banner_url,
+  fechaEstreno: fila.fecha_estreno ?? null,
   funciones: (fila.funciones ?? [])
     .filter((f) => f.activa)
     .sort((a, b) => a.hora.localeCompare(b.hora))
