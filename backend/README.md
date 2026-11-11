@@ -3,6 +3,29 @@
 El backend es [Supabase](https://supabase.com): autenticación, base de datos Postgres
 y reglas de seguridad. No hay un servidor propio que desplegar.
 
+## Cómo levantarlo
+
+No hay nada que arrancar en tu PC: Supabase corre en la nube y está siempre encendido.
+Esta carpeta solo guarda el SQL que define la base de datos.
+
+Para trabajar en el proyecto:
+
+1. **Una sola vez:** aplica los SQL en Supabase (ver "Cómo aplicarlo" más abajo).
+2. **Cada vez que programes:** levanta solo el frontend, que se conecta a Supabase por internet.
+
+   ```bash
+   cd frontend
+   npm install      # solo la primera vez
+   npm run dev      # http://localhost:5173
+   ```
+
+   El frontend necesita `frontend/.env` con la URL y la clave pública del proyecto
+   (ver el README de la raíz).
+
+Para comprobar que el backend responde, abre el panel del proyecto en supabase.com: el
+estado debe decir **Healthy**. En el plan gratis, Supabase pausa el proyecto tras una
+semana sin uso; si eso pasa, se reactiva desde el panel con **Restore project**.
+
 ## Contenido
 
 Se ejecutan en este orden:
