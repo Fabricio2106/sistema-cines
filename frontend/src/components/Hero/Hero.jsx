@@ -9,8 +9,8 @@ import { useCartelera } from "../../context/CarteleraContext";
 
 export default function Hero() {
   const { peliculas, cargando } = useCartelera();
-  // Solo películas con banner horizontal
-  const destacadas = peliculas.filter((p) => p.banner).slice(0, 5);
+  // Con banner horizontal se muestra tal cual; sin banner se usa el póster vertical
+  const destacadas = peliculas.filter((p) => p.banner || p.poster).slice(0, 5);
 
   if (destacadas.length === 0) {
     // Reserva el espacio del carrusel mientras carga para que la página no salte
@@ -31,12 +31,30 @@ export default function Hero() {
         {destacadas.map((pelicula, i) => (
           <SwiperSlide key={pelicula.id}>
             <div className="relative w-full h-[420px] sm:h-[560px] lg:h-[680px]">
-              <img
-                src={pelicula.banner}
-                alt={`Banner de ${pelicula.titulo}`}
-                loading={i === 0 ? "eager" : "lazy"}
-                className="w-full h-full object-cover"
-              />
+              {pelicula.banner ? (
+                <img
+                  src={pelicula.banner}
+                  alt={`Banner de ${pelicula.titulo}`}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <>
+                  <img
+                    src={pelicula.poster}
+                    alt=""
+                    aria-hidden="true"
+                    loading={i === 0 ? "eager" : "lazy"}
+                    className="w-full h-full object-cover scale-110 blur-2xl opacity-60"
+                  />
+                  <img
+                    src={pelicula.poster}
+                    alt={`Póster de ${pelicula.titulo}`}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    className="hidden sm:block absolute right-12 lg:right-32 top-8 h-[calc(100%-6rem)] w-auto rounded-xl shadow-2xl shadow-black/60"
+                  />
+                </>
+              )}
 
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent hidden sm:block" />
