@@ -6,8 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 const navbarLinks = [
   { id: 1, title: "Inicio", link: "/" },
   { id: 2, title: "Estrenos", link: "/#estrenos" },
-  { id: 3, title: "Normas", link: "/#normas" },
-  { id: 4, title: "Cómo llegar", link: "/#como-llegar" },
+  { id: 3, title: "Cómo llegar", link: "/como-llegar" },
 ];
 
 const Navbar = () => {
