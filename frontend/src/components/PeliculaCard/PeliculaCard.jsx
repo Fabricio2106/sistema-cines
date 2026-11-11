@@ -1,66 +1,62 @@
 import { Link } from "react-router-dom";
 
+import { esEstreno } from "../../utils/estreno";
+
+// Toda la tarjeta es un enlace a la película: ahí el cliente ve horarios y compra.
 const PeliculaCard = ({ pelicula }) => {
-  const { id, titulo, genero, clasificacion, poster, banner, funciones } = pelicula;
+  const { id, titulo, genero, clasificacion, descripcion, poster, banner, funciones, fechaEstreno } = pelicula;
+  const desde = funciones.length > 0 ? Math.min(...funciones.map((f) => f.precio)) : null;
 
   return (
-    <article className="group bg-surface-900 rounded-xl overflow-hidden border border-primary-900/50 shadow-xl hover:-translate-y-1 hover:border-primary-600/60 hover:shadow-2xl hover:shadow-primary-500/20 transition-all duration-300 flex flex-col">
-      <Link
-        to={`/pelicula/${id}`}
-        className="relative block overflow-hidden"
-        aria-label={`Ver detalles de ${titulo}`}
-      >
+    <Link
+      to={`/pelicula/${id}`}
+      aria-label={`Ver ${titulo}`}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-accent-500/50 hover:shadow-2xl hover:shadow-primary-500/20 focus-visible:border-accent-500 focus-visible:outline-none"
+    >
+      <div className="relative overflow-hidden">
         <img
           src={poster ?? banner}
           alt={`Póster de ${titulo}`}
           loading="lazy"
-          className="w-full aspect-[2/3] object-cover transition-transform duration-500 group-hover:scale-105"
+          className="aspect-[2/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-surface-900 to-transparent" />
-        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-          <span className="bg-primary-600 text-white text-xs px-3 py-1 rounded-full font-bold shadow">
-            {genero}
-          </span>
-          {clasificacion && (
-            <span className="bg-accent-500 text-black text-xs px-3 py-1 rounded-full font-bold shadow">
-              {clasificacion}
+
+        {/* Cinta diagonal en la esquina superior izquierda */}
+        {esEstreno(fechaEstreno) && (
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-28 w-28 overflow-hidden" aria-hidden="true">
+            <span className="absolute left-[-40px] top-[22px] w-[150px] -rotate-45 bg-rose-600 py-1 text-center text-xs font-bold uppercase tracking-wider text-white shadow-lg">
+              Estreno
             </span>
-          )}
-        </div>
-      </Link>
+          </div>
+        )}
+        {esEstreno(fechaEstreno) && <span className="sr-only">Estreno. </span>}
 
-      <div className="p-4 flex flex-col gap-3 flex-1">
-        <h3 className="text-white font-bold text-sm sm:text-base leading-snug line-clamp-2 min-h-[2.5rem]">
-          {titulo}
-        </h3>
+        {clasificacion && (
+          <span className="absolute right-3 top-3 rounded-full bg-accent-500 px-2.5 py-1 text-xs font-bold text-black shadow">
+            {clasificacion}
+          </span>
+        )}
 
-        <ul className="flex flex-wrap gap-1.5" aria-label="Horarios">
-          {funciones.map((f) => (
-            <li
-              key={f.id}
-              className="text-xs text-surface-200 bg-surface-800 border border-surface-700 rounded-md px-2 py-0.5"
-            >
-              {f.hora}
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-auto grid grid-cols-2 gap-2 pt-1">
-          <Link
-            to={`/pelicula/${id}`}
-            className="text-center px-3 py-2 text-sm font-semibold text-white rounded-lg border-2 border-primary-600 hover:bg-primary-600 transition-colors"
-          >
-            Detalles
-          </Link>
-          <Link
-            to={`/pelicula/${id}#funciones`}
-            className="text-center px-3 py-2 text-sm font-bold text-black rounded-lg bg-accent-500 hover:bg-accent-600 transition-colors"
-          >
-            Comprar
-          </Link>
+        {/* Sinopsis al pasar el mouse o enfocar con el teclado */}
+        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-black/80 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+          <p className="line-clamp-5 text-sm leading-relaxed text-surface-100">{descripcion}</p>
+          <span className="mt-3 text-sm font-semibold text-accent-400">Ver horarios y comprar →</span>
         </div>
       </div>
-    </article>
+
+      <div className="flex flex-1 flex-col gap-1 p-4">
+        <h3 className="text-base font-bold leading-snug text-white line-clamp-2">{titulo}</h3>
+        <p className="text-sm text-surface-400">
+          {genero}
+          {desde !== null && (
+            <>
+              <span aria-hidden="true"> · </span>
+              Desde <span className="font-semibold text-accent-400">S/ {desde}</span>
+            </>
+          )}
+        </p>
+      </div>
+    </Link>
   );
 };
 
