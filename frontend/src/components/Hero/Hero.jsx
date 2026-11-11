@@ -9,8 +9,10 @@ import { useCartelera } from "../../context/CarteleraContext";
 
 export default function Hero() {
   const { peliculas, cargando } = useCartelera();
-  // Con banner horizontal se muestra tal cual; sin banner se usa el póster vertical
-  const destacadas = peliculas.filter((p) => p.banner || p.poster).slice(0, 5);
+  // Se muestran las películas con banner horizontal; si ninguna lo tiene,
+  // se usa el póster vertical como respaldo
+  const conBanner = peliculas.filter((p) => p.banner);
+  const destacadas = (conBanner.length > 0 ? conBanner : peliculas.filter((p) => p.poster)).slice(0, 5);
 
   if (destacadas.length === 0) {
     // Reserva el espacio del carrusel mientras carga para que la página no salte
