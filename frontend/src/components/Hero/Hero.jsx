@@ -9,8 +9,10 @@ import { useCartelera } from "../../context/CarteleraContext";
 
 export default function Hero() {
   const { peliculas, cargando } = useCartelera();
-  // Con banner horizontal se muestra tal cual; sin banner se usa el póster vertical
-  const destacadas = peliculas.filter((p) => p.banner || p.poster).slice(0, 5);
+  // Se muestran las películas con banner horizontal; si ninguna lo tiene,
+  // se usa el póster vertical como respaldo
+  const conBanner = peliculas.filter((p) => p.banner);
+  const destacadas = (conBanner.length > 0 ? conBanner : peliculas.filter((p) => p.poster)).slice(0, 5);
 
   if (destacadas.length === 0) {
     // Reserva el espacio del carrusel mientras carga para que la página no salte
@@ -30,15 +32,48 @@ export default function Hero() {
       >
         {destacadas.map((pelicula, i) => (
           <SwiperSlide key={pelicula.id}>
-            <div className="relative w-full h-[420px] sm:h-[560px] lg:h-[680px]">
-              {pelicula.banner ? (
+            {pelicula.banner ? (
+              <div className="flex flex-col h-[calc(100svh-4rem)] min-h-[440px] max-h-[900px]">
+                {/* El banner ocupa todo el alto que sobra, sin degradados ni texto encima */}
                 <img
                   src={pelicula.banner}
                   alt={`Banner de ${pelicula.titulo}`}
                   loading={i === 0 ? "eager" : "lazy"}
-                  className="w-full h-full object-cover"
+                  className="w-full flex-1 min-h-0 object-cover"
                 />
-              ) : (
+                {/* Franja con los colores del sitio: morado de la barra que se funde con el granate del fondo */}
+                <div className="shrink-0 px-6 pt-4 pb-9 sm:px-12 lg:px-16 border-t-2 border-accent-500/60 bg-gradient-to-r from-primary-900 via-primary-950 to-[rgb(26,0,0)]">
+                  <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+                    <div className="flex flex-wrap items-center gap-3 min-w-0">
+                      <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
+                        {pelicula.genero}
+                      </span>
+                      {pelicula.clasificacion && (
+                        <span className="bg-accent-500 text-black px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
+                          {pelicula.clasificacion}
+                        </span>
+                      )}
+                      <h2 className="text-xl sm:text-3xl font-bold text-white">{pelicula.titulo}</h2>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <Link
+                        to={`/pelicula/${pelicula.id}#funciones`}
+                        className="bg-accent-500 hover:bg-accent-600 text-black px-5 sm:px-6 py-2 rounded-full font-bold transition-all duration-300 hover:scale-105"
+                      >
+                        Comprar entrada
+                      </Link>
+                      <Link
+                        to={`/pelicula/${pelicula.id}`}
+                        className="border-2 border-white text-white hover:bg-white hover:text-black px-5 sm:px-6 py-2 rounded-full font-bold transition-all duration-300"
+                      >
+                        Más información
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+            <div className="relative w-full h-[420px] sm:h-[560px] lg:h-[680px]">
                 <>
                   <img
                     src={pelicula.poster}
@@ -54,7 +89,6 @@ export default function Hero() {
                     className="hidden sm:block absolute right-12 lg:right-32 top-8 h-[calc(100%-6rem)] w-auto rounded-xl shadow-2xl shadow-black/60"
                   />
                 </>
-              )}
 
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent hidden sm:block" />
@@ -97,6 +131,7 @@ export default function Hero() {
                 </div>
               </div>
             </div>
+            )}
           </SwiperSlide>
         ))}
       </Swiper>
