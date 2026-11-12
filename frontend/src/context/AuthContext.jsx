@@ -21,8 +21,9 @@ export const AuthProvider = ({ children }) => {
     ingresar: auth.ingresar,
     registrar: auth.registrar,
     salir: auth.salir,
-    actualizarNombre: auth.actualizarNombre,
+    actualizarDatos: auth.actualizarDatos,
     cambiarPassword: auth.cambiarPassword,
+    enviarCorreoRecuperacion: auth.enviarCorreoRecuperacion,
   };
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

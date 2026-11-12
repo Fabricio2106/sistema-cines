@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import logo from "../../assets/logocine.png";
+import logo from "../../assets/cinerama-letras.png";
 import { useAuth } from "../../context/AuthContext";
 
 const navbarLinks = [
@@ -86,7 +86,7 @@ const Navbar = () => {
           <img
             src={logo}
             alt="Cinerama Pacífico"
-            className="w-[110px] transition-transform duration-300 hover:scale-105 sm:w-[125px]"
+            className="w-[130px] transition-transform duration-300 hover:scale-105 sm:w-[160px]"
           />
         </Link>
 

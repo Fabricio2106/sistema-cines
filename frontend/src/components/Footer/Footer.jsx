@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { CINE } from "../../data/cine";
-import logo from "../../assets/logocine.png";
+import logo from "../../assets/cinerama-letras.png";
 
 const ENLACES_CINE = [
   ["Cartelera", "/#estrenos"],
@@ -53,7 +53,7 @@ const Footer = () => (
       <div className="grid gap-x-12 gap-y-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1.4fr]">
         {/* Marca y redes */}
         <div>
-          <img src={logo} alt={CINE.nombre} className="w-36" />
+          <img src={logo} alt={CINE.nombre} className="w-44" />
           <p className="mt-6 max-w-xs text-sm leading-7">
             Tu cine en Miraflores. Los mejores estrenos con la mejor calidad de imagen y sonido.
           </p>
