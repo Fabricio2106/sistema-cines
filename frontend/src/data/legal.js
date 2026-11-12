@@ -22,7 +22,7 @@ export const LEGAL = {
       {
         t: "Para qué los usamos",
         p: [
-          "Para que puedas ingresar a tu cuenta, comprar entradas, consultarlas en «Mis entradas», atender tus consultas y responder tus reclamos.",
+          "Para que puedas ingresar a tu cuenta, comprar entradas, consultarlas en «Mis compras», atender tus consultas y responder tus reclamos.",
           "No vendemos tus datos ni los usamos para fines distintos a los descritos aquí.",
         ],
       },

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { CarteleraProvider } from "./context/CarteleraContext.jsx";
 import Navbar from "./components/Navbar/Navbar";
@@ -14,7 +14,7 @@ const Pelicula = lazy(() => import("./pages/Pelicula.jsx"));
 const Butacas = lazy(() => import("./pages/Butacas.jsx"));
 const Resumen = lazy(() => import("./pages/Resumen.jsx"));
 const Ticket = lazy(() => import("./pages/Ticket.jsx"));
-const MisEntradas = lazy(() => import("./pages/MisEntradas.jsx"));
+const Perfil = lazy(() => import("./pages/Perfil.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Legal = lazy(() => import("./pages/Legal.jsx"));
 const LibroReclamaciones = lazy(() => import("./pages/LibroReclamaciones.jsx"));
@@ -46,7 +46,8 @@ function App() {
             <Route path="/libro-de-reclamaciones" element={<LibroReclamaciones />} />
             <Route path="/resumen" element={<RutaPrivada><Resumen /></RutaPrivada>} />
             <Route path="/ticket/:id" element={<RutaPrivada><Ticket /></RutaPrivada>} />
-            <Route path="/mis-entradas" element={<RutaPrivada><MisEntradas /></RutaPrivada>} />
+            <Route path="/perfil" element={<RutaPrivada><Perfil /></RutaPrivada>} />
+            <Route path="/mis-entradas" element={<Navigate to="/perfil?tab=compras" replace />} />
           </Routes>
         </Suspense>
         <Footer />

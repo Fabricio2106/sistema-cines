@@ -25,8 +25,8 @@ const Ticket = () => {
     return (
       <main className="min-h-screen pt-32 px-6 text-center text-white">
         <h1 className="text-3xl font-bold mb-4">Entrada no encontrada</h1>
-        <Link to="/mis-entradas" className="text-accent-400 hover:underline">
-          Ir a mis entradas
+        <Link to="/perfil?tab=compras" className="text-accent-400 hover:underline">
+          Ir a mis compras
         </Link>
       </main>
     );
@@ -76,10 +76,10 @@ const Ticket = () => {
             Imprimir
           </button>
           <Link
-            to="/mis-entradas"
+            to="/perfil?tab=compras"
             className="px-6 py-3 rounded-full font-bold bg-accent-500 hover:bg-accent-600 text-black transition-colors"
           >
-            Mis entradas
+            Mis compras
           </Link>
         </div>
       </div>

@@ -49,3 +49,13 @@ export const ingresar = async ({ email, password }) => {
 export const salir = async () => {
   await supabase.auth.signOut();
 };
+
+export const actualizarNombre = async (nombre) => {
+  const { error } = await supabase.auth.updateUser({ data: { nombre: nombre.trim() } });
+  if (error) throw traducir(error);
+};
+
+export const cambiarPassword = async (password) => {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw traducir(error);
+};
