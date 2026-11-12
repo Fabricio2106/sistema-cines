@@ -15,7 +15,7 @@ export const LEGAL = {
       {
         t: "Qué datos recopilamos",
         p: [
-          "Tu correo electrónico y tu contraseña (que se guarda cifrada) al crear una cuenta, y los datos de tus compras: película, función, butacas, monto y fecha.",
+          "Al crear una cuenta: tu nombre, apellidos, DNI, fecha de nacimiento, género, número de celular, correo electrónico y tu contraseña (que se guarda cifrada). También los datos de tus compras: película, función, butacas, monto y fecha.",
           "Si presentas un reclamo o una queja en el Libro de Reclamaciones, también tu nombre, documento de identidad, datos de contacto y el detalle que nos indiques.",
         ],
       },
@@ -23,6 +23,7 @@ export const LEGAL = {
         t: "Para qué los usamos",
         p: [
           "Para que puedas ingresar a tu cuenta, comprar entradas, consultarlas en «Mis compras», atender tus consultas y responder tus reclamos.",
+          "Si lo autorizas al crear tu cuenta, también para enviarte promociones e información por correo electrónico. Puedes retirar esta autorización cuando quieras desde «Mis datos» o escribiéndonos.",
           "No vendemos tus datos ni los usamos para fines distintos a los descritos aquí.",
         ],
       },

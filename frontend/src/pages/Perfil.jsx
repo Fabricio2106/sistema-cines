@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import Selector from "../components/Selector/Selector";
 import { useAuth } from "../context/AuthContext";
 import { comprasDeUsuario } from "../services/compras";
+import { CINE } from "../data/cine";
+import { GENEROS, hoy, soloDigitos, validarDatosPersonales } from "../utils/datosPersonales";
 
 const campo =
   "w-full px-4 py-3 rounded-lg bg-surface-800 border border-surface-700 text-white placeholder-surface-500 focus:outline-none focus:border-accent-400 focus:ring-1 focus:ring-accent-400 disabled:opacity-60";
@@ -151,9 +154,29 @@ const Compras = () => {
   );
 };
 
+const Dato = ({ etiqueta, icono, children }) => (
+  <label className="block">
+    <span className="text-sm text-surface-300">{etiqueta}</span>
+    <div className="relative mt-1">
+      <i
+        className={`bi ${icono} pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary-400`}
+        aria-hidden="true"
+      />
+      {children}
+    </div>
+  </label>
+);
+
 const Datos = () => {
-  const { usuario, actualizarNombre, cambiarPassword } = useAuth();
-  const [nombre, setNombre] = useState(usuario.nombre === usuario.email ? "" : usuario.nombre);
+  const { usuario, actualizarDatos, cambiarPassword } = useAuth();
+  const [form, setForm] = useState({
+    nombre: usuario.nombre === usuario.email ? "" : usuario.nombre,
+    apellidos: usuario.apellidos,
+    celular: usuario.celular,
+    fechaNacimiento: usuario.fechaNacimiento,
+    genero: usuario.genero,
+  });
+  const [promociones, setPromociones] = useState(usuario.promociones);
   const [aviso, setAviso] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
@@ -162,12 +185,16 @@ const Datos = () => {
   const [avisoClave, setAvisoClave] = useState(null);
   const [cambiando, setCambiando] = useState(false);
 
-  const guardarNombre = async (e) => {
+  const cambiar = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const guardarDatos = async (e) => {
     e.preventDefault();
     setAviso(null);
+    const problema = validarDatosPersonales({ ...form, dni: usuario.dni || "00000000" });
+    if (problema) return setAviso({ tipo: "error", texto: problema });
     setGuardando(true);
     try {
-      await actualizarNombre(nombre);
+      await actualizarDatos({ ...form, promociones });
       setAviso({ tipo: "ok", texto: "Tus datos se guardaron." });
     } catch (err) {
       setAviso({ tipo: "error", texto: err.message });
@@ -194,31 +221,70 @@ const Datos = () => {
     }
   };
 
+  const campoIcono = `${campo} pl-11`;
+
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <form onSubmit={guardarNombre} className="flex flex-col gap-4 rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6">
+    <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <form onSubmit={guardarDatos} className="flex flex-col gap-4 rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6">
         <h2 className="flex items-center gap-2 text-lg font-bold text-white">
           <i className="bi bi-person-vcard-fill text-accent-400" aria-hidden="true" />
           Datos personales
         </h2>
 
-        <label className="block">
-          <span className="text-sm text-surface-300">Nombre</span>
-          <input
-            type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-            autoComplete="name"
-            placeholder="Tu nombre"
-            className={`${campo} mt-1`}
-          />
-        </label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Dato etiqueta="Nombre" icono="bi-person-fill">
+            <input name="nombre" value={form.nombre} onChange={cambiar} required autoComplete="given-name" className={campoIcono} />
+          </Dato>
+          <Dato etiqueta="Apellidos" icono="bi-person-fill">
+            <input name="apellidos" value={form.apellidos} onChange={cambiar} required autoComplete="family-name" className={campoIcono} />
+          </Dato>
+          <Dato etiqueta="DNI" icono="bi-person-vcard-fill">
+            <input value={usuario.dni || "Sin registrar"} disabled className={campoIcono} />
+          </Dato>
+          <Dato etiqueta="Número de celular" icono="bi-phone-fill">
+            <input
+              name="celular"
+              value={form.celular}
+              onChange={(e) => setForm({ ...form, celular: soloDigitos(e.target.value, 9) })}
+              required
+              inputMode="numeric"
+              placeholder="9XX XXX XXX"
+              className={campoIcono}
+            />
+          </Dato>
+          <Dato etiqueta="Fecha de nacimiento" icono="bi-calendar-event-fill">
+            <input
+              type="date"
+              name="fechaNacimiento"
+              value={form.fechaNacimiento}
+              onChange={cambiar}
+              required
+              min="1900-01-01"
+              max={hoy()}
+              className={`${campoIcono} [color-scheme:dark]`}
+            />
+          </Dato>
+          <Dato etiqueta="Género" icono="bi-gender-ambiguous">
+            <Selector name="genero" value={form.genero} onChange={cambiar} opciones={GENEROS} className={campoIcono} />
+          </Dato>
+        </div>
 
-        <label className="block">
-          <span className="text-sm text-surface-300">Correo electrónico</span>
-          <input type="email" value={usuario.email} disabled className={`${campo} mt-1`} />
-          <span className="mt-1 block text-xs text-surface-500">El correo es tu usuario y no se puede cambiar.</span>
+        <Dato etiqueta="Correo electrónico" icono="bi-envelope-fill">
+          <input type="email" value={usuario.email} disabled className={campoIcono} />
+        </Dato>
+        <p className="-mt-2 text-xs text-surface-500">El correo y el DNI no se pueden cambiar desde aquí.</p>
+
+        <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-primary-100/70">
+          <input
+            type="checkbox"
+            checked={promociones}
+            onChange={(e) => setPromociones(e.target.checked)}
+            className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-yellow-400"
+          />
+          <span>
+            Acepto recibir promociones e información de {CINE.nombre} y entiendo que algunos beneficios solo podrán
+            ser asignados mediante el envío de correo electrónico.
+          </span>
         </label>
 
         {aviso && <Aviso tipo={aviso.tipo}>{aviso.texto}</Aviso>}
@@ -232,7 +298,7 @@ const Datos = () => {
         </button>
       </form>
 
-      <form onSubmit={guardarClave} className="flex flex-col gap-4 rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6">
+      <form onSubmit={guardarClave} className="flex flex-col gap-4 self-start rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6">
         <h2 className="flex items-center gap-2 text-lg font-bold text-white">
           <i className="bi bi-shield-lock-fill text-accent-400" aria-hidden="true" />
           Cambiar contraseña
@@ -268,7 +334,7 @@ const Datos = () => {
         <button
           type="submit"
           disabled={cambiando}
-          className="mt-auto rounded-full border-2 border-primary-500 px-6 py-3 font-bold text-white transition-colors hover:bg-primary-600 disabled:opacity-60"
+          className="rounded-full border-2 border-primary-500 px-6 py-3 font-bold text-white transition-colors hover:bg-primary-600 disabled:opacity-60"
         >
           {cambiando ? "Actualizando…" : "Actualizar contraseña"}
         </button>
@@ -291,10 +357,10 @@ const Perfil = () => {
             className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-700 text-3xl font-bold text-white shadow-lg shadow-primary-900/60 ring-4 ring-accent-400/80"
             aria-hidden="true"
           >
-            {iniciales(usuario.nombre)}
+            {iniciales(usuario.nombreCompleto)}
           </span>
           <div className="min-w-0">
-            <h1 className="truncate text-2xl font-bold sm:text-3xl">{usuario.nombre}</h1>
+            <h1 className="truncate text-2xl font-bold sm:text-3xl">{usuario.nombreCompleto}</h1>
             <p className="truncate text-sm text-primary-100/60">{usuario.email}</p>
           </div>
         </header>
