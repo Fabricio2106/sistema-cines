@@ -41,7 +41,7 @@ const Footer = () => (
         <div>
           <p className="text-xl font-bold text-white">{CINE.nombre}</p>
           <p className="mt-3 max-w-xs text-sm leading-relaxed">
-            Tu cine en Iquitos. Los mejores estrenos con la mejor calidad de imagen y sonido.
+            Tu cine en Miraflores. Los mejores estrenos con la mejor calidad de imagen y sonido.
           </p>
           <ul className="mt-6 flex gap-3" aria-label="Redes sociales">
             {CINE.redes.map((red) => (
@@ -88,6 +88,12 @@ const Footer = () => (
               <i className="bi bi-telephone-fill mt-0.5 text-accent-400" aria-hidden="true" />
               <a href={CINE.telefonoEnlace} className="transition-colors hover:text-accent-400">
                 {CINE.telefono}
+              </a>
+            </li>
+            <li className="flex gap-3">
+              <i className="bi bi-phone-fill mt-0.5 text-accent-400" aria-hidden="true" />
+              <a href={CINE.celularEnlace} className="transition-colors hover:text-accent-400">
+                {CINE.celular}
               </a>
             </li>
             <li className="flex gap-3">

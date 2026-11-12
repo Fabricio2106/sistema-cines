@@ -5,9 +5,8 @@ const NORMAS = [
   "Todo niño a partir de tres (03) años paga.",
   "La empresa se reserva el derecho de cambiar los horarios de las películas sin previo aviso.",
   "La empresa no se responsabiliza por la pérdida de sus pertenencias.",
-  "Multicines Iquitos no tiene ninguna tarjeta de afiliación para promociones.",
   "Todo billete falso será marcado.",
-  "La empresa Multicines Iquitos cuenta con libro de reclamaciones.",
+  "La empresa Cinerama Pacífico cuenta con libro de reclamaciones.",
 ];
 
 const Normas = () => (

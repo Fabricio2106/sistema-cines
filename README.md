@@ -1,4 +1,4 @@
-# Multicines Iquitos
+# Cinerama Pacífico
 
 Sitio web de cartelera y venta de entradas.
 

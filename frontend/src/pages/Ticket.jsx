@@ -49,7 +49,7 @@ const Ticket = () => {
 
         <section className="bg-surface-900 border border-primary-700/40 rounded-2xl overflow-hidden text-left">
           <div className="bg-primary-700 px-5 py-4">
-            <p className="text-xs uppercase tracking-widest text-primary-200">Multicines Iquitos</p>
+            <p className="text-xs uppercase tracking-widest text-primary-200">Cinerama Pacífico</p>
             <h1 className="text-xl font-bold">{compra.titulo}</h1>
           </div>
           <dl className="divide-y divide-surface-800">

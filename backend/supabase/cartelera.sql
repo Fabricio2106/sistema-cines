@@ -1,4 +1,4 @@
--- Cartelera de Multicines Iquitos: películas, funciones y salas.
+-- Cartelera de Cinerama Pacífico: películas, funciones y salas.
 -- Se ejecuta DESPUÉS de schema.sql, en Supabase → SQL Editor → Run.
 -- Se puede ejecutar más de una vez: los datos iniciales solo se insertan si
 -- no existen, así que no pisa lo que edites en el Table Editor.
