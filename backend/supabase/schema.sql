@@ -1,4 +1,4 @@
--- Esquema de Multicines Iquitos (compras y butacas). Va primero; luego cartelera.sql.
+-- Esquema de Cinerama Pacífico (compras y butacas). Va primero; luego cartelera.sql.
 -- Se pega completo en Supabase → SQL Editor → Run.
 -- Se puede ejecutar más de una vez sin romper nada.
 

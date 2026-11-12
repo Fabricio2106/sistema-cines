@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../../assets/logocine.png";
+import { CINE } from "../../data/cine";
 import { useAuth } from "../../context/AuthContext";
 
 const navbarLinks = [
@@ -44,10 +45,10 @@ const Navbar = () => {
       }`}
     >
       <div className="flex justify-between items-center px-4 py-3 sm:px-12 sm:py-4 max-w-7xl mx-auto">
-        <Link to="/" aria-label="Multicines Iquitos, ir al inicio">
+        <Link to="/" aria-label="Cinerama Pacífico, ir al inicio">
           <img
             src={logo}
-            alt="Multicines Iquitos"
+            alt="Cinerama Pacífico"
             className="w-[110px] sm:w-[120px] hover:scale-105 transition-transform duration-300"
           />
         </Link>
@@ -65,10 +66,10 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-5">
           <a
-            href="https://www.facebook.com"
+            href={CINE.facebook}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Facebook de Multicines Iquitos"
+            aria-label="Facebook de Cinerama Pacífico"
             className="text-white text-xl hover:text-accent-400 hover:scale-110 transition-all duration-300"
           >
             <i className="bi bi-facebook" />
@@ -137,10 +138,10 @@ const Navbar = () => {
 
         <div className="flex items-center justify-center gap-6 px-4 py-4 border-t border-primary-700/50 bg-primary-900/30">
           <a
-            href="https://www.facebook.com"
+            href={CINE.facebook}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Facebook de Multicines Iquitos"
+            aria-label="Facebook de Cinerama Pacífico"
             className="text-white text-2xl hover:text-accent-400 transition-colors"
           >
             <i className="bi bi-facebook" />

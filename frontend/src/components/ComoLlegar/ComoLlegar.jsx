@@ -1,4 +1,5 @@
 import React from "react";
+import { CINE } from "../../data/cine";
 
 const ComoLlegar = () => {
   return (
@@ -30,9 +31,8 @@ const ComoLlegar = () => {
                 </div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Dirección</h3>
-                  <p className="text-gray-300 text-sm">Av. Principal 123</p>
-                  <p className="text-gray-400 text-sm">Iquitos, Perú</p>
-                  <p className="text-gray-500 text-xs mt-1">Centro comercial Multicines</p>
+                  <p className="text-gray-300 text-sm">{CINE.direccion}</p>
+                  <p className="text-gray-400 text-sm">{CINE.ciudad}</p>
                 </div>
               </div>
             </div>
@@ -47,8 +47,7 @@ const ComoLlegar = () => {
                 </div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Horarios</h3>
-                  <p className="text-gray-300 text-sm">Lunes a Domingo</p>
-                  <p className="text-accent-400 font-semibold">11:00 AM - 11:00 PM</p>
+                  <p className="text-accent-400 font-semibold">{CINE.horario}</p>
                 </div>
               </div>
             </div>
@@ -63,24 +62,8 @@ const ComoLlegar = () => {
                 </div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Contacto</h3>
-                  <p className="text-gray-300 text-sm">(065) 123-4567</p>
-                  <p className="text-gray-400 text-sm">contacto@multicinesiquitos.com</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Estacionamiento */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-xl border border-gray-700 hover:border-accent-400/50 transition-all duration-300">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-accent-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-white font-bold mb-2">Estacionamiento</h3>
-                  <p className="text-gray-300 text-sm">Disponible en el centro comercial</p>
-                  <p className="text-green-400 text-xs mt-1">✓ Gratis para clientes</p>
+                  <p className="text-gray-300 text-sm">{CINE.telefono} · {CINE.celular}</p>
+                  <p className="text-gray-400 text-sm">{CINE.correo}</p>
                 </div>
               </div>
             </div>
@@ -90,8 +73,8 @@ const ComoLlegar = () => {
           <div className="lg:col-span-3">
             <div className="h-full min-h-[500px] rounded-xl overflow-hidden shadow-2xl border border-gray-700 hover:border-primary-600/50 transition-all duration-300">
               <iframe
-                title="Mapa de Multicines Iquitos"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3981.337425630249!2d-73.25032588468104!3d-3.743373597232779!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9100e77d67b0f57d%3A0xd3dd7ef6d5f7f1a7!2sMulticines%20Iquitos!5e0!3m2!1ses-419!2spe!4v1691443200000!5m2!1ses-419!2spe"
+                title={`Mapa de ${CINE.nombre}`}
+                src={`https://www.google.com/maps?q=${encodeURIComponent(`${CINE.nombre}, ${CINE.direccion}, ${CINE.ciudad}`)}&output=embed`}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
