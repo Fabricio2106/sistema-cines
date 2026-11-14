@@ -18,7 +18,7 @@ const Normas = () => (
       descripcion="Para garantizar una mejor experiencia a todos nuestros clientes"
     />
 
-    <ol className="grid gap-x-6 gap-y-8 md:grid-cols-2">
+    <ol className="grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-2">
       {NORMAS.map((texto, i) => (
         <li
           key={texto}

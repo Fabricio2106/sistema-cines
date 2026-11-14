@@ -90,7 +90,7 @@ const LibroReclamaciones = () => {
         titulo="Libro de Reclamaciones"
         descripcion={`Registra aquí tu reclamo o queja sobre ${CINE.nombre}. Los campos marcados con * son obligatorios.`}
       />
-      <dl className="mb-8 grid gap-x-6 gap-y-1 rounded-xl border border-primary-800/70 bg-primary-900/30 p-4 text-sm sm:grid-cols-2">
+      <dl className="mb-8 grid grid-cols-1 gap-x-6 gap-y-1 rounded-xl border border-primary-800/70 bg-primary-900/30 p-4 text-sm sm:grid-cols-2">
         <div>
           <dt className="inline text-primary-100/50">Razón social: </dt>
           <dd className="inline text-primary-100/80">{CINE.razonSocial}</dd>
@@ -110,7 +110,7 @@ const LibroReclamaciones = () => {
       <form onSubmit={enviar} noValidate className="space-y-6">
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-primary-100/80">Tipo *</legend>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {[
               ["reclamo", "Reclamo", "Disconformidad con el servicio o la compra"],
               ["queja", "Queja", "Malestar por la atención, sin relación con la compra"],
@@ -135,7 +135,7 @@ const LibroReclamaciones = () => {
           <Mensaje>{errors.nombre?.message}</Mensaje>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[10rem_1fr]">
           <div>
             <Etiqueta htmlFor="tipoDocumento">Documento *</Etiqueta>
             <select id="tipoDocumento" className={campo("tipoDocumento")} {...register("tipoDocumento")}>
@@ -158,7 +158,7 @@ const LibroReclamaciones = () => {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <Etiqueta htmlFor="correo">Correo electrónico *</Etiqueta>
             <input

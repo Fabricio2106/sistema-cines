@@ -19,7 +19,7 @@ const Ventas = () => {
         </button>
       </TituloPagina>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Indicador icono="bi-ticket-perforated-fill" valor={entradas} etiqueta="Entradas vendidas" />
         <Indicador icono="bi-cash-coin" valor={soles(ingresos)} etiqueta="Ingresos" />
         <Indicador icono="bi-receipt" valor={soles(Math.round(ingresos / entradas))} etiqueta="Precio promedio por entrada" />

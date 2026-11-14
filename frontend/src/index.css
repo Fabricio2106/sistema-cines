@@ -37,13 +37,15 @@ body {
 
 
 /* Calendario de funciones (react-day-picker) con la paleta del sitio */
-.calendario-cine {
+.calendario-cine.rdp-root {
     --rdp-accent-color: #facc15;
     --rdp-accent-background-color: rgba(250, 204, 21, 0.15);
-    --rdp-day-height: 40px;
-    --rdp-day-width: 40px;
-    --rdp-day_button-height: 38px;
-    --rdp-day_button-width: 38px;
+    /* En celular las 7 columnas se reparten el ancho de la tarjeta (página 24px + tarjeta 16px + borde por lado);
+       en pantallas anchas llegan a 44px */
+    --rdp-day-width: min(44px, calc((100vw - 82px) / 7));
+    --rdp-day-height: var(--rdp-day-width);
+    --rdp-day_button-width: calc(var(--rdp-day-width) - 2px);
+    --rdp-day_button-height: calc(var(--rdp-day-width) - 2px);
     color: #fff;
 }
 .calendario-cine .rdp-chevron {

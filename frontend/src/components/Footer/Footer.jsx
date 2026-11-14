@@ -50,7 +50,7 @@ const Footer = () => (
     <div className="h-1.5 bg-gradient-to-r from-primary-700 via-primary-500 to-accent-400" aria-hidden="true" />
 
     <div className="mx-auto max-w-7xl px-6 pb-14 pt-20 sm:px-12">
-      <div className="grid gap-x-12 gap-y-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1.4fr]">
+      <div className="grid grid-cols-1 gap-x-12 gap-y-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1.4fr]">
         {/* Marca y redes */}
         <div>
           <img src={logo} alt={CINE.nombre} className="w-44" />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,15 +54,17 @@ const Campo = ({ icono, etiqueta, error, children }) => (
   </label>
 );
 
-const Casilla = ({ error, children, ...props }) => (
+const Casilla = forwardRef(function Casilla({ error, children, ...props }, ref) {
+  return (
   <div>
     <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-primary-100/70">
-      <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-yellow-400" {...props} />
+      <input ref={ref} type="checkbox" className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-yellow-400" {...props} />
       <span>{children}</span>
     </label>
     <Mensaje>{error}</Mensaje>
   </div>
-);
+  );
+});
 
 const enlace = "font-semibold text-accent-400 hover:underline";
 
@@ -144,7 +146,7 @@ const Login = () => {
 
   return (
     <main className="min-h-screen text-white lg:h-screen lg:overflow-hidden">
-      <div className="grid min-h-screen lg:h-screen lg:grid-cols-2">
+      <div className="grid grid-cols-1 min-h-screen lg:h-screen lg:grid-cols-2">
         {/* Panel de marca (solo escritorio) */}
         <aside className="relative hidden overflow-hidden bg-primary-900 lg:block">
           <img src="/login-fondo.webp" alt="" className="absolute inset-0 h-full w-full object-cover" />
@@ -182,7 +184,7 @@ const Login = () => {
             Volver al inicio
           </Link>
 
-          <div className={`mx-auto w-full ${esRegistro ? "max-w-2xl lg:pt-6" : "max-w-md"}`}>
+          <div className={`mx-auto w-full pt-10 lg:pt-0 ${esRegistro ? "max-w-2xl lg:pt-6" : "max-w-md"}`}>
             <Link to="/" aria-label={`${CINE.nombre}, ir al inicio`} className={`block w-fit lg:hidden ${esRegistro ? "mb-3" : "mb-5"}`}>
               <img src={letras} alt={CINE.nombre} className={esRegistro ? "w-36 sm:w-40" : "w-48 sm:w-56"} />
             </Link>
@@ -309,7 +311,7 @@ const Login = () => {
                 <input
                   type={verClave ? "text" : "password"}
                   autoComplete={esRegistro ? "new-password" : "current-password"}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder={esRegistro ? "6 o más caracteres" : "Mínimo 6 caracteres"}
                   aria-invalid={Boolean(errors.password)}
                   className={`${clase("password")} pr-12`}
                   {...register("password")}

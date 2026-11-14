@@ -3,7 +3,7 @@ import Skeleton from "react-loading-skeleton";
 // Esqueleto de una página con póster y texto, mientras carga la cartelera.
 const PaginaCargando = () => (
   <main className="min-h-screen px-6 pb-16 pt-28 sm:px-12" aria-busy="true" aria-label="Cargando">
-    <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-[280px_1fr]">
+    <div className="mx-auto grid grid-cols-1 max-w-5xl gap-8 md:grid-cols-[280px_1fr]">
       <Skeleton height={420} borderRadius={16} />
       <div>
         <Skeleton height={40} width="70%" />

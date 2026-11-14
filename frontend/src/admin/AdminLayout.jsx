@@ -64,7 +64,7 @@ const AdminLayout = () => {
             Maqueta · datos de ejemplo
           </span>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex rounded-full bg-primary-900/70 p-1" role="group" aria-label="Ver el panel como">
               {Object.entries(ROLES).map(([clave, nombre]) => (
                 <button

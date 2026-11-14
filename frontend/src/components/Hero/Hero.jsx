@@ -33,13 +33,13 @@ export default function Hero() {
         {destacadas.map((pelicula, i) => (
           <SwiperSlide key={pelicula.id}>
             {pelicula.banner ? (
-              <div className="flex flex-col h-[calc(100svh-4rem)] min-h-[440px] max-h-[900px]">
+              <div className="flex flex-col lg:h-[calc(100svh-4rem)] lg:min-h-[440px] lg:max-h-[900px]">
                 {/* El banner ocupa todo el alto que sobra, sin degradados ni texto encima */}
                 <img
                   src={pelicula.banner}
                   alt={`Banner de ${pelicula.titulo}`}
                   loading={i === 0 ? "eager" : "lazy"}
-                  className="w-full flex-1 min-h-0 object-cover"
+                  className="w-full aspect-[21/9] object-cover lg:aspect-auto lg:flex-1 lg:min-h-0"
                 />
                 {/* Franja con los colores del sitio: morado de la barra que se funde con el granate del fondo */}
                 <div className="shrink-0 px-6 pt-4 pb-9 sm:px-12 lg:px-16 border-t-2 border-accent-500/60 bg-gradient-to-r from-primary-900 via-primary-950 to-[rgb(26,0,0)]">

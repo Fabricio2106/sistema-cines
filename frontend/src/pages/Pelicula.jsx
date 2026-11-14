@@ -49,7 +49,7 @@ const Pelicula = () => {
           aria-hidden="true"
         />
 
-        <div className="relative mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-[280px_1fr] md:gap-12">
+        <div className="relative mx-auto grid grid-cols-1 max-w-5xl items-center gap-8 md:grid-cols-[280px_1fr] md:gap-12">
           <img
             src={poster ?? banner}
             alt={`Póster de ${titulo}`}
@@ -98,8 +98,8 @@ const Pelicula = () => {
             Elige tu función
           </h2>
 
-          <div className="grid gap-6 lg:grid-cols-[auto_1fr]">
-            <div className="w-fit rounded-2xl border border-primary-700/40 bg-primary-900/30 p-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[auto_1fr]">
+            <div className="w-full rounded-2xl border border-primary-700/40 bg-primary-900/30 p-4 md:w-fit">
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-primary-100/50">1 · Fecha</p>
               <Calendario valor={fecha} onCambio={(f) => setParams({ fecha: f }, { replace: true, preventScrollReset: true })} />
             </div>
@@ -111,7 +111,7 @@ const Pelicula = () => {
               {funciones.length === 0 ? (
                 <p className="text-sm text-primary-100/60">Todavía no hay funciones programadas para esta película.</p>
               ) : (
-                <ul className="grid gap-3 sm:grid-cols-2">
+                <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {funciones.map((f) => {
                     const empezo = funcionYaEmpezo(fecha, f.hora);
                     const cuerpo = (

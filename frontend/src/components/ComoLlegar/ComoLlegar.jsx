@@ -16,7 +16,7 @@ const ComoLlegar = () => {
           <p className="text-primary-100/60 mt-4">Visítanos y disfruta del mejor cine</p>
         </div>
         
-        <div className="grid lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Información de ubicación - 2 columnas */}
           <div className="lg:col-span-2 space-y-6">
             {/* Dirección */}

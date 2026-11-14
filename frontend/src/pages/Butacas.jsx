@@ -86,7 +86,7 @@ const Butacas = () => {
         aria-pressed={elegida}
         aria-label={`Butaca ${asiento}${ocupada ? ", ocupada" : elegida ? ", seleccionada" : ""}`}
         onClick={() => alternar(asiento)}
-        className={`flex aspect-square w-7 shrink-0 items-center justify-center rounded-t-xl rounded-b-md border-b-4 text-[10px] font-bold transition-all duration-150 sm:w-9 sm:text-xs ${
+        className={`flex aspect-square min-w-[22px] max-w-9 flex-1 items-center justify-center rounded-t-xl rounded-b-md border-b-4 text-[9px] font-bold transition-all duration-150 sm:text-xs ${
           ocupada ? estilos.ocupada : elegida ? estilos.seleccionada : estilos.libre
         }`}
       >
@@ -125,25 +125,22 @@ const Butacas = () => {
           <p className="mt-3 text-center text-xs font-bold tracking-[0.4em] text-primary-100/50">PANTALLA</p>
         </div>
 
-        {/* Mapa de butacas */}
-        <div className="overflow-x-auto pb-4">
-          <div className="mx-auto flex w-fit min-w-max flex-col gap-2 px-2">
-            {sala.filas.map((fila) => (
-              <div key={fila} className="flex items-center gap-1 sm:gap-1.5">
-                <span className="w-5 text-center text-xs font-bold text-primary-100/50">{fila}</span>
-                <div className="flex gap-1 sm:gap-1.5">
-                  {Array.from({ length: mitad }, (_, i) => butaca(fila, i + 1))}
-                </div>
-                <span className="w-4 shrink-0 sm:w-8" aria-hidden="true" />
-                <div className="flex gap-1 sm:gap-1.5">
-                  {Array.from({ length: sala.asientosPorFila - mitad }, (_, i) => butaca(fila, mitad + i + 1))}
-                </div>
-                <span className="w-5 text-center text-xs font-bold text-primary-100/50">{fila}</span>
+        {/* Mapa de butacas: las butacas se reparten el ancho disponible */}
+        <div className="mx-auto mb-6 flex w-full max-w-xl flex-col gap-1.5 overflow-x-auto pb-2 sm:gap-2">
+          {sala.filas.map((fila) => (
+            <div key={fila} className="flex items-center gap-0.5 sm:gap-1.5">
+              <span className="w-4 shrink-0 text-center text-[10px] font-bold text-primary-100/50 sm:w-5 sm:text-xs">{fila}</span>
+              <div className="flex flex-1 justify-center gap-0.5 sm:gap-1.5">
+                {Array.from({ length: mitad }, (_, i) => butaca(fila, i + 1))}
               </div>
-            ))}
-          </div>
+              <span className="w-3 shrink-0 sm:w-8" aria-hidden="true" />
+              <div className="flex flex-1 justify-center gap-0.5 sm:gap-1.5">
+                {Array.from({ length: sala.asientosPorFila - mitad }, (_, i) => butaca(fila, mitad + i + 1))}
+              </div>
+              <span className="w-4 shrink-0 text-center text-[10px] font-bold text-primary-100/50 sm:w-5 sm:text-xs">{fila}</span>
+            </div>
+          ))}
         </div>
-        <p className="mb-6 text-center text-xs text-primary-100/50 sm:hidden">Desliza para ver toda la sala</p>
 
         <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-primary-100/70">
           <li className="flex items-center gap-2">

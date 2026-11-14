@@ -5,7 +5,7 @@ import { CINE } from "../../data/cine";
 // Pantalla completa dividida en dos: banner de marca (solo escritorio) y el contenido a la derecha.
 const PanelAuth = ({ titulo, subtitulo, children }) => (
   <main className="min-h-screen text-white lg:h-screen lg:overflow-hidden">
-    <div className="grid min-h-screen lg:h-screen lg:grid-cols-2">
+    <div className="grid grid-cols-1 min-h-screen lg:h-screen lg:grid-cols-2">
       <aside className="relative hidden overflow-hidden bg-primary-900 lg:block">
           <img src="/login-fondo.webp" alt="" className="absolute inset-0 h-full w-full object-cover" />
           <div className="relative flex h-full flex-col items-center justify-evenly px-12 py-28 text-center">

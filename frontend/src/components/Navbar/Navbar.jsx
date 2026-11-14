@@ -46,7 +46,7 @@ const Navbar = () => {
   };
 
   const claseLinkEscritorio = (link) =>
-    `flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${
+    `flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-all duration-300 lg:px-5 ${
       estaActivo(link)
         ? "bg-primary-600 text-white shadow-md shadow-primary-900/60"
         : "text-primary-100/80 hover:bg-white/10 hover:text-white"
@@ -84,7 +84,7 @@ const Navbar = () => {
           {navbarLinks.map((item) => (
             <li key={item.id}>
               <Link to={item.link} className={claseLinkEscritorio(item.link)}>
-                <i className={`bi ${item.icono}`} aria-hidden="true" />
+                <i className={`bi ${item.icono} hidden lg:inline`} aria-hidden="true" />
                 {item.title}
               </Link>
             </li>
