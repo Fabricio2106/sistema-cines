@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { registrarReclamo } from "../services/reclamos";
 import { CINE } from "../data/cine";
+import { esquemaReclamo } from "../utils/esquemas";
 
-const campo =
-  "w-full px-4 py-3 rounded-lg bg-surface-800 border border-surface-700 text-white placeholder-surface-500 focus:outline-none focus:border-accent-400 focus:ring-1 focus:ring-accent-400";
+const campoBase =
+  "w-full px-4 py-3 rounded-lg bg-surface-800 border text-white placeholder-surface-500 focus:outline-none focus:ring-1";
 
 const vacio = {
   tipo: "reclamo",
@@ -16,6 +19,7 @@ const vacio = {
   direccion: "",
   detalle: "",
   pedido: "",
+  acepta: false,
 };
 
 const Etiqueta = ({ htmlFor, children, opcional }) => (
@@ -25,30 +29,38 @@ const Etiqueta = ({ htmlFor, children, opcional }) => (
   </label>
 );
 
+const Mensaje = ({ children }) =>
+  children ? (
+    <p role="alert" className="mt-1 text-xs text-red-300">
+      {children}
+    </p>
+  ) : null;
+
 const LibroReclamaciones = () => {
-  const [form, setForm] = useState(vacio);
-  const [acepta, setAcepta] = useState(false);
-  const [enviando, setEnviando] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm({ resolver: zodResolver(esquemaReclamo), defaultValues: vacio, mode: "onTouched" });
   const [error, setError] = useState("");
   const [numero, setNumero] = useState(null);
 
-  const cambiar = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const tipo = watch("tipo");
+  const campo = (nombre) =>
+    `${campoBase} ${errors[nombre] ? "border-red-500/70 focus:border-red-400 focus:ring-red-400" : "border-surface-700 focus:border-accent-400 focus:ring-accent-400"}`;
 
-  const enviar = async (e) => {
-    e.preventDefault();
+  const enviar = handleSubmit(async (datos) => {
     setError("");
-    setEnviando(true);
     try {
-      setNumero(await registrarReclamo(form));
-      setForm(vacio);
-      setAcepta(false);
+      setNumero(await registrarReclamo(datos));
+      reset(vacio);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setError(err.message);
-    } finally {
-      setEnviando(false);
     }
-  };
+  });
 
   if (numero !== null) {
     return (
@@ -95,7 +107,7 @@ const LibroReclamaciones = () => {
         </div>
       </dl>
 
-      <form onSubmit={enviar} className="space-y-6">
+      <form onSubmit={enviar} noValidate className="space-y-6">
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-surface-200">Tipo *</legend>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -106,17 +118,10 @@ const LibroReclamaciones = () => {
               <label
                 key={valor}
                 className={`cursor-pointer rounded-xl border p-4 transition-colors ${
-                  form.tipo === valor ? "border-accent-500 bg-accent-500/10" : "border-surface-700 hover:border-surface-500"
+                  tipo === valor ? "border-accent-500 bg-accent-500/10" : "border-surface-700 hover:border-surface-500"
                 }`}
               >
-                <input
-                  type="radio"
-                  name="tipo"
-                  value={valor}
-                  checked={form.tipo === valor}
-                  onChange={cambiar}
-                  className="sr-only"
-                />
+                <input type="radio" value={valor} className="sr-only" {...register("tipo")} />
                 <span className="block font-semibold text-white">{titulo}</span>
                 <span className="text-sm text-surface-400">{ayuda}</span>
               </label>
@@ -126,13 +131,14 @@ const LibroReclamaciones = () => {
 
         <div>
           <Etiqueta htmlFor="nombre">Nombres y apellidos *</Etiqueta>
-          <input id="nombre" name="nombre" required minLength={2} maxLength={120} autoComplete="name" value={form.nombre} onChange={cambiar} className={campo} />
+          <input id="nombre" autoComplete="name" aria-invalid={Boolean(errors.nombre)} className={campo("nombre")} {...register("nombre")} />
+          <Mensaje>{errors.nombre?.message}</Mensaje>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
           <div>
             <Etiqueta htmlFor="tipoDocumento">Documento *</Etiqueta>
-            <select id="tipoDocumento" name="tipoDocumento" value={form.tipoDocumento} onChange={cambiar} className={campo}>
+            <select id="tipoDocumento" className={campo("tipoDocumento")} {...register("tipoDocumento")}>
               <option>DNI</option>
               <option value="CE">Carné de extranjería</option>
               <option>Pasaporte</option>
@@ -141,46 +147,68 @@ const LibroReclamaciones = () => {
           </div>
           <div>
             <Etiqueta htmlFor="numeroDocumento">Número de documento *</Etiqueta>
-            <input id="numeroDocumento" name="numeroDocumento" required minLength={5} maxLength={20} inputMode="numeric" value={form.numeroDocumento} onChange={cambiar} className={campo} />
+            <input
+              id="numeroDocumento"
+              inputMode="numeric"
+              aria-invalid={Boolean(errors.numeroDocumento)}
+              className={campo("numeroDocumento")}
+              {...register("numeroDocumento")}
+            />
+            <Mensaje>{errors.numeroDocumento?.message}</Mensaje>
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Etiqueta htmlFor="correo">Correo electrónico *</Etiqueta>
-            <input id="correo" name="correo" type="email" required maxLength={120} autoComplete="email" value={form.correo} onChange={cambiar} className={campo} />
+            <input
+              id="correo"
+              type="email"
+              autoComplete="email"
+              aria-invalid={Boolean(errors.correo)}
+              className={campo("correo")}
+              {...register("correo")}
+            />
+            <Mensaje>{errors.correo?.message}</Mensaje>
           </div>
           <div>
             <Etiqueta htmlFor="telefono" opcional>Teléfono</Etiqueta>
-            <input id="telefono" name="telefono" type="tel" maxLength={20} autoComplete="tel" value={form.telefono} onChange={cambiar} className={campo} />
+            <input id="telefono" type="tel" autoComplete="tel" className={campo("telefono")} {...register("telefono")} />
+            <Mensaje>{errors.telefono?.message}</Mensaje>
           </div>
         </div>
 
         <div>
           <Etiqueta htmlFor="direccion" opcional>Dirección</Etiqueta>
-          <input id="direccion" name="direccion" maxLength={200} autoComplete="street-address" value={form.direccion} onChange={cambiar} className={campo} />
+          <input id="direccion" autoComplete="street-address" className={campo("direccion")} {...register("direccion")} />
+          <Mensaje>{errors.direccion?.message}</Mensaje>
         </div>
 
         <div>
           <Etiqueta htmlFor="detalle">Detalle de lo ocurrido *</Etiqueta>
-          <textarea id="detalle" name="detalle" required minLength={10} maxLength={2000} rows={5} value={form.detalle} onChange={cambiar} className={campo} />
+          <textarea id="detalle" rows={5} aria-invalid={Boolean(errors.detalle)} className={campo("detalle")} {...register("detalle")} />
+          <Mensaje>{errors.detalle?.message}</Mensaje>
         </div>
 
         <div>
           <Etiqueta htmlFor="pedido">¿Qué solución esperas? *</Etiqueta>
-          <textarea id="pedido" name="pedido" required minLength={5} maxLength={1000} rows={3} value={form.pedido} onChange={cambiar} className={campo} />
+          <textarea id="pedido" rows={3} aria-invalid={Boolean(errors.pedido)} className={campo("pedido")} {...register("pedido")} />
+          <Mensaje>{errors.pedido?.message}</Mensaje>
         </div>
 
-        <label className="flex items-start gap-3 text-sm text-surface-300">
-          <input type="checkbox" required checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-1 h-4 w-4 accent-yellow-400" />
-          <span>
-            Acepto el tratamiento de mis datos para atender este reclamo, según la{" "}
-            <Link to="/legal/politica-de-datos-personales" className="text-accent-400 hover:underline">
-              Política de Protección de Datos Personales
-            </Link>
-            . *
-          </span>
-        </label>
+        <div>
+          <label className="flex items-start gap-3 text-sm text-surface-300">
+            <input type="checkbox" className="mt-1 h-4 w-4 accent-yellow-400" {...register("acepta")} />
+            <span>
+              Acepto el tratamiento de mis datos para atender este reclamo, según la{" "}
+              <Link to="/legal/politica-de-datos-personales" className="text-accent-400 hover:underline">
+                Política de Protección de Datos Personales
+              </Link>
+              . *
+            </span>
+          </label>
+          <Mensaje>{errors.acepta?.message}</Mensaje>
+        </div>
 
         {error && (
           <p role="alert" className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
@@ -190,10 +218,10 @@ const LibroReclamaciones = () => {
 
         <button
           type="submit"
-          disabled={enviando}
+          disabled={isSubmitting}
           className="w-full rounded-full bg-accent-500 px-6 py-3 font-bold text-black transition-colors hover:bg-accent-400 disabled:opacity-60"
         >
-          {enviando ? "Enviando…" : "Enviar hoja de reclamación"}
+          {isSubmitting ? "Enviando…" : "Enviar hoja de reclamación"}
         </button>
       </form>
     </main>

@@ -1,13 +1,18 @@
 import { useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
 import Selector from "../components/Selector/Selector";
 import letras from "../assets/cinerama-letras.png";
 import { CINE } from "../data/cine";
-import { GENEROS, hoy, soloDigitos, validarDatosPersonales } from "../utils/datosPersonales";
+import { GENEROS, hoy, soloDigitos } from "../utils/datosPersonales";
+import { esquemaIngreso, esquemaRegistro } from "../utils/esquemas";
 
 const campoBase =
-  "w-full rounded-xl border border-primary-800/70 bg-primary-950/70 py-3 pl-11 pr-4 text-white placeholder-surface-500 transition-colors focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400";
+  "w-full rounded-xl border bg-primary-950/70 py-3 pl-11 pr-4 text-white placeholder-surface-500 transition-colors focus:outline-none focus:ring-1";
+const bordeNormal = "border-primary-800/70 focus:border-accent-400 focus:ring-accent-400";
+const bordeError = "border-red-500/70 focus:border-red-400 focus:ring-red-400";
 
 const BENEFICIOS = [
   ["bi-ticket-perforated-fill", "Compra tus entradas en segundos"],
@@ -15,7 +20,7 @@ const BENEFICIOS = [
   ["bi-clock-history", "Revisa tu historial de compras"],
 ];
 
-const FORM_INICIAL = {
+const VALORES_INICIALES = {
   nombre: "",
   apellidos: "",
   dni: "",
@@ -24,9 +29,18 @@ const FORM_INICIAL = {
   celular: "",
   email: "",
   password: "",
+  aceptaTerminos: false,
+  promociones: false,
 };
 
-const Campo = ({ icono, etiqueta, children }) => (
+const Mensaje = ({ children }) =>
+  children ? (
+    <span role="alert" className="mt-1 block text-xs text-red-300">
+      {children}
+    </span>
+  ) : null;
+
+const Campo = ({ icono, etiqueta, error, children }) => (
   <label className="block">
     <span className="text-sm font-medium text-primary-100/60">{etiqueta}</span>
     <div className="relative mt-1.5">
@@ -36,20 +50,18 @@ const Campo = ({ icono, etiqueta, children }) => (
       />
       {children}
     </div>
+    <Mensaje>{error}</Mensaje>
   </label>
 );
 
-const Casilla = ({ checked, onChange, required, children }) => (
-  <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-primary-100/70">
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={onChange}
-      required={required}
-      className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-yellow-400"
-    />
-    <span>{children}</span>
-  </label>
+const Casilla = ({ error, children, ...props }) => (
+  <div>
+    <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-primary-100/70">
+      <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-yellow-400" {...props} />
+      <span>{children}</span>
+    </label>
+    <Mensaje>{error}</Mensaje>
+  </div>
 );
 
 const enlace = "font-semibold text-accent-400 hover:underline";
@@ -60,62 +72,75 @@ const Login = () => {
   const from = state?.from;
 
   const [modo, setModo] = useState("ingresar");
-  const [form, setForm] = useState(FORM_INICIAL);
-  const [aceptaTerminos, setAceptaTerminos] = useState(false);
-  const [aceptaPromociones, setAceptaPromociones] = useState(false);
   const [verClave, setVerClave] = useState(false);
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState("");
   const [enviando, setEnviando] = useState(false);
 
   const esRegistro = modo === "registrar";
+
+  // El esquema cambia según el modo; el resolver se vuelve a leer en cada envío.
+  const {
+    register,
+    handleSubmit,
+    control,
+    clearErrors,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: VALORES_INICIALES,
+    mode: "onTouched",
+    resolver: (valores, contexto, opciones) =>
+      zodResolver(esRegistro ? esquemaRegistro : esquemaIngreso)(valores, contexto, opciones),
+  });
+
   // En el registro los campos son más bajos para que todo entre en la pantalla sin scroll
-  const campo = esRegistro ? campoBase.replace("py-3", "py-2") : campoBase;
+  const clase = (nombre) =>
+    `${esRegistro ? campoBase.replace("py-3", "py-2") : campoBase} ${errors[nombre] ? bordeError : bordeNormal}`;
+
+  // Campo numérico: solo deja escribir dígitos y corta al máximo
+  const soloNumeros = (nombre, max) => {
+    const { onChange, ...resto } = register(nombre);
+    return {
+      ...resto,
+      onChange: (e) => {
+        e.target.value = soloDigitos(e.target.value, max);
+        return onChange(e);
+      },
+    };
+  };
 
   if (usuario) {
     const destino = from ? `${from.pathname}${from.search}${from.hash}` : "/";
     return <Navigate to={destino} replace state={from?.state} />;
   }
 
-  const cambiar = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const cambiarDigitos = (max) => (e) => setForm({ ...form, [e.target.name]: soloDigitos(e.target.value, max) });
-
   const cambiarModo = (nuevo) => {
     setModo(nuevo);
+    clearErrors();
     setError("");
     setAviso("");
   };
 
-  const enviar = async (e) => {
-    e.preventDefault();
+  const enviar = handleSubmit(async (datos) => {
     setError("");
-
-    if (esRegistro) {
-      const problema = validarDatosPersonales(form);
-      if (problema) return setError(problema);
-      if (!aceptaTerminos) {
-        return setError("Debes aceptar los Términos y Condiciones y la Política de Protección de Datos Personales");
-      }
-    }
-    if (form.password.length < 6) return setError("La contraseña debe tener al menos 6 caracteres");
-
     setEnviando(true);
     try {
       if (esRegistro) {
-        const conSesion = await registrar({ ...form, promociones: aceptaPromociones });
+        const conSesion = await registrar(datos);
         if (!conSesion) {
           setAviso("Te enviamos un correo para confirmar tu cuenta. Confírmalo y luego ingresa.");
           setModo("ingresar");
         }
       } else {
-        await ingresar(form);
+        await ingresar(datos);
       }
     } catch (err) {
       setError(err.message);
     } finally {
       setEnviando(false);
     }
-  };
+  });
 
   return (
     <main className="min-h-screen text-white lg:h-screen lg:overflow-hidden">
@@ -192,112 +217,102 @@ const Login = () => {
               ))}
             </div>
 
-            <form onSubmit={enviar} className={esRegistro ? "grid gap-x-4 gap-y-3 sm:grid-cols-2" : "flex flex-col gap-5"}>
+            <form
+              onSubmit={enviar}
+              noValidate
+              className={esRegistro ? "grid gap-x-4 gap-y-3 sm:grid-cols-2" : "flex flex-col gap-5"}
+            >
               {esRegistro && (
-                <>
-                  <div className="contents">
-                    <Campo icono="bi-person-fill" etiqueta="Nombre">
-                      <input
-                        type="text"
-                        name="nombre"
-                        value={form.nombre}
-                        onChange={cambiar}
-                        required
-                        autoComplete="given-name"
-                        placeholder="Tu nombre"
-                        className={campo}
-                      />
-                    </Campo>
-                    <Campo icono="bi-person-fill" etiqueta="Apellidos">
-                      <input
-                        type="text"
-                        name="apellidos"
-                        value={form.apellidos}
-                        onChange={cambiar}
-                        required
-                        autoComplete="family-name"
-                        placeholder="Tus apellidos"
-                        className={campo}
-                      />
-                    </Campo>
-                    <Campo icono="bi-person-vcard-fill" etiqueta="DNI">
-                      <input
-                        type="text"
-                        name="dni"
-                        value={form.dni}
-                        onChange={cambiarDigitos(8)}
-                        required
-                        inputMode="numeric"
-                        pattern="\d{8}"
-                        title="8 dígitos"
-                        placeholder="8 dígitos"
-                        className={campo}
-                      />
-                    </Campo>
-                    <Campo icono="bi-phone-fill" etiqueta="Número de celular">
-                      <input
-                        type="tel"
-                        name="celular"
-                        value={form.celular}
-                        onChange={cambiarDigitos(9)}
-                        required
-                        inputMode="numeric"
-                        autoComplete="tel-national"
-                        pattern="9\d{8}"
-                        title="9 dígitos, empieza con 9"
-                        placeholder="9XX XXX XXX"
-                        className={campo}
-                      />
-                    </Campo>
-                    <Campo icono="bi-calendar-event-fill" etiqueta="Fecha de nacimiento">
-                      <input
-                        type="date"
-                        name="fechaNacimiento"
-                        value={form.fechaNacimiento}
-                        onChange={cambiar}
-                        required
-                        min="1900-01-01"
-                        max={hoy()}
-                        autoComplete="bday"
-                        className={`${campo} [color-scheme:dark]`}
-                      />
-                    </Campo>
-                    <Campo icono="bi-gender-ambiguous" etiqueta="Género">
-                      <Selector
-                        name="genero"
-                        value={form.genero}
-                        onChange={cambiar}
-                        opciones={GENEROS}
-                        className={campo}
-                      />
-                    </Campo>
-                  </div>
-                </>
+                <div className="contents">
+                  <Campo icono="bi-person-fill" etiqueta="Nombre" error={errors.nombre?.message}>
+                    <input
+                      type="text"
+                      autoComplete="given-name"
+                      placeholder="Tu nombre"
+                      aria-invalid={Boolean(errors.nombre)}
+                      className={clase("nombre")}
+                      {...register("nombre")}
+                    />
+                  </Campo>
+                  <Campo icono="bi-person-fill" etiqueta="Apellidos" error={errors.apellidos?.message}>
+                    <input
+                      type="text"
+                      autoComplete="family-name"
+                      placeholder="Tus apellidos"
+                      aria-invalid={Boolean(errors.apellidos)}
+                      className={clase("apellidos")}
+                      {...register("apellidos")}
+                    />
+                  </Campo>
+                  <Campo icono="bi-person-vcard-fill" etiqueta="DNI" error={errors.dni?.message}>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="8 dígitos"
+                      aria-invalid={Boolean(errors.dni)}
+                      className={clase("dni")}
+                      {...soloNumeros("dni", 8)}
+                    />
+                  </Campo>
+                  <Campo icono="bi-phone-fill" etiqueta="Número de celular" error={errors.celular?.message}>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel-national"
+                      placeholder="9XX XXX XXX"
+                      aria-invalid={Boolean(errors.celular)}
+                      className={clase("celular")}
+                      {...soloNumeros("celular", 9)}
+                    />
+                  </Campo>
+                  <Campo icono="bi-calendar-event-fill" etiqueta="Fecha de nacimiento" error={errors.fechaNacimiento?.message}>
+                    <input
+                      type="date"
+                      min="1900-01-01"
+                      max={hoy()}
+                      autoComplete="bday"
+                      aria-invalid={Boolean(errors.fechaNacimiento)}
+                      className={`${clase("fechaNacimiento")} [color-scheme:dark]`}
+                      {...register("fechaNacimiento")}
+                    />
+                  </Campo>
+                  <Campo icono="bi-gender-ambiguous" etiqueta="Género" error={errors.genero?.message}>
+                    <Controller
+                      name="genero"
+                      control={control}
+                      render={({ field }) => (
+                        <Selector
+                          name="genero"
+                          value={field.value}
+                          onChange={field.onChange}
+                          opciones={GENEROS}
+                          className={clase("genero")}
+                        />
+                      )}
+                    />
+                  </Campo>
+                </div>
               )}
 
-              <Campo icono="bi-envelope-fill" etiqueta="Correo electrónico">
+              <Campo icono="bi-envelope-fill" etiqueta="Correo electrónico" error={errors.email?.message}>
                 <input
                   type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={cambiar}
-                  required
                   autoComplete="email"
                   placeholder="correo@ejemplo.com"
-                  className={campo}
+                  aria-invalid={Boolean(errors.email)}
+                  className={clase("email")}
+                  {...register("email")}
                 />
               </Campo>
 
-              <Campo icono="bi-lock-fill" etiqueta="Contraseña">
+              <Campo icono="bi-lock-fill" etiqueta="Contraseña" error={errors.password?.message}>
                 <input
                   type={verClave ? "text" : "password"}
-                  name="password"
-                  value={form.password}
-                  onChange={cambiar}
-                  required
                   autoComplete={esRegistro ? "new-password" : "current-password"}
                   placeholder="Mínimo 6 caracteres"
-                  className={`${campo} pr-12`}
+                  aria-invalid={Boolean(errors.password)}
+                  className={`${clase("password")} pr-12`}
+                  {...register("password")}
                 />
                 <button
                   type="button"
@@ -311,7 +326,7 @@ const Login = () => {
 
               {!esRegistro && (
                 <div className="-mt-3 text-right">
-                  <Link to="/recuperar-contrasena" state={{ email: form.email }} className={`text-sm ${enlace}`}>
+                  <Link to="/recuperar-contrasena" state={{ email: watch("email") }} className={`text-sm ${enlace}`}>
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
@@ -319,7 +334,7 @@ const Login = () => {
 
               {esRegistro && (
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <Casilla checked={aceptaTerminos} onChange={(e) => setAceptaTerminos(e.target.checked)} required>
+                  <Casilla error={errors.aceptaTerminos?.message} {...register("aceptaTerminos")}>
                     He leído y acepto los{" "}
                     <Link to="/legal/terminos-y-condiciones" target="_blank" className={enlace}>
                       Términos y Condiciones
@@ -330,7 +345,7 @@ const Login = () => {
                     </Link>
                     .
                   </Casilla>
-                  <Casilla checked={aceptaPromociones} onChange={(e) => setAceptaPromociones(e.target.checked)}>
+                  <Casilla {...register("promociones")}>
                     Acepto recibir promociones e información de {CINE.nombre} y entiendo que algunos beneficios solo
                     podrán ser asignados mediante el envío de correo electrónico.
                   </Casilla>

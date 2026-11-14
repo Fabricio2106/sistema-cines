@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useSearchParams } from "react-router-dom";
 import Selector from "../components/Selector/Selector";
 import { useAuth } from "../context/AuthContext";
 import { comprasDeUsuario } from "../services/compras";
 import { CINE } from "../data/cine";
-import { GENEROS, hoy, soloDigitos, validarDatosPersonales } from "../utils/datosPersonales";
+import { GENEROS, hoy, soloDigitos } from "../utils/datosPersonales";
+import { esquemaClave, esquemaDatos } from "../utils/esquemas";
 
 const campo =
   "w-full px-4 py-3 rounded-lg bg-surface-800 border border-surface-700 text-white placeholder-surface-500 focus:outline-none focus:border-accent-400 focus:ring-1 focus:ring-accent-400 disabled:opacity-60";
@@ -155,7 +158,7 @@ const Compras = () => {
   );
 };
 
-const Dato = ({ etiqueta, icono, children }) => (
+const Dato = ({ etiqueta, icono, error, children }) => (
   <label className="block">
     <span className="text-sm text-surface-300">{etiqueta}</span>
     <div className="relative mt-1">
@@ -165,118 +168,127 @@ const Dato = ({ etiqueta, icono, children }) => (
       />
       {children}
     </div>
+    {error && (
+      <span role="alert" className="mt-1 block text-xs text-red-300">
+        {error}
+      </span>
+    )}
   </label>
 );
 
 const Datos = () => {
   const { usuario, actualizarDatos, cambiarPassword } = useAuth();
-  const [form, setForm] = useState({
-    nombre: usuario.nombre === usuario.email ? "" : usuario.nombre,
-    apellidos: usuario.apellidos,
-    celular: usuario.celular,
-    fechaNacimiento: usuario.fechaNacimiento,
-    genero: usuario.genero,
+
+  const datos = useForm({
+    resolver: zodResolver(esquemaDatos),
+    defaultValues: {
+      nombre: usuario.nombre === usuario.email ? "" : usuario.nombre,
+      apellidos: usuario.apellidos,
+      celular: usuario.celular,
+      fechaNacimiento: usuario.fechaNacimiento,
+      genero: usuario.genero,
+      promociones: usuario.promociones,
+    },
   });
-  const [promociones, setPromociones] = useState(usuario.promociones);
-  const [guardando, setGuardando] = useState(false);
 
-  const [clave, setClave] = useState("");
-  const [clave2, setClave2] = useState("");
-  const [cambiando, setCambiando] = useState(false);
+  const clave = useForm({
+    resolver: zodResolver(esquemaClave),
+    defaultValues: { clave: "", clave2: "" },
+  });
 
-  const cambiar = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const guardarDatos = async (e) => {
-    e.preventDefault();
-    const problema = validarDatosPersonales({ ...form, dni: usuario.dni || "00000000" });
-    if (problema) return toast.error(problema);
-    setGuardando(true);
+  const guardarDatos = datos.handleSubmit(async (valores) => {
     try {
-      await actualizarDatos({ ...form, promociones });
+      await actualizarDatos(valores);
       toast.success("Tus datos se guardaron.");
     } catch (err) {
       toast.error(err.message);
-    } finally {
-      setGuardando(false);
     }
-  };
+  });
 
-  const guardarClave = async (e) => {
-    e.preventDefault();
-    if (clave.length < 6) return toast.error("La contraseña debe tener al menos 6 caracteres.");
-    if (clave !== clave2) return toast.error("Las contraseñas no coinciden.");
-    setCambiando(true);
+  const guardarClave = clave.handleSubmit(async ({ clave: nueva }) => {
     try {
-      await cambiarPassword(clave);
-      setClave("");
-      setClave2("");
+      await cambiarPassword(nueva);
+      clave.reset();
       toast.success("Tu contraseña se actualizó.");
     } catch (err) {
       toast.error(err.message);
-    } finally {
-      setCambiando(false);
     }
-  };
+  });
 
-  const campoIcono = `${campo} pl-11`;
+  const e = datos.formState.errors;
+  const ec = clave.formState.errors;
+  const campoIcono = (error) => `${campo} pl-11 ${error ? "border-red-500/70" : ""}`;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-      <form onSubmit={guardarDatos} className="flex flex-col gap-4 rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6">
+      <form
+        onSubmit={guardarDatos}
+        noValidate
+        className="flex flex-col gap-4 rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6"
+      >
         <h2 className="flex items-center gap-2 text-lg font-bold text-white">
           <i className="bi bi-person-vcard-fill text-accent-400" aria-hidden="true" />
           Datos personales
         </h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Dato etiqueta="Nombre" icono="bi-person-fill">
-            <input name="nombre" value={form.nombre} onChange={cambiar} required autoComplete="given-name" className={campoIcono} />
+          <Dato etiqueta="Nombre" icono="bi-person-fill" error={e.nombre?.message}>
+            <input autoComplete="given-name" className={campoIcono(e.nombre)} {...datos.register("nombre")} />
           </Dato>
-          <Dato etiqueta="Apellidos" icono="bi-person-fill">
-            <input name="apellidos" value={form.apellidos} onChange={cambiar} required autoComplete="family-name" className={campoIcono} />
+          <Dato etiqueta="Apellidos" icono="bi-person-fill" error={e.apellidos?.message}>
+            <input autoComplete="family-name" className={campoIcono(e.apellidos)} {...datos.register("apellidos")} />
           </Dato>
           <Dato etiqueta="DNI" icono="bi-person-vcard-fill">
-            <input value={usuario.dni || "Sin registrar"} disabled className={campoIcono} />
+            <input value={usuario.dni || "Sin registrar"} disabled readOnly className={campoIcono()} />
           </Dato>
-          <Dato etiqueta="Número de celular" icono="bi-phone-fill">
+          <Dato etiqueta="Número de celular" icono="bi-phone-fill" error={e.celular?.message}>
             <input
-              name="celular"
-              value={form.celular}
-              onChange={(e) => setForm({ ...form, celular: soloDigitos(e.target.value, 9) })}
-              required
               inputMode="numeric"
               placeholder="9XX XXX XXX"
-              className={campoIcono}
+              className={campoIcono(e.celular)}
+              {...datos.register("celular", {
+                onChange: (ev) => {
+                  ev.target.value = soloDigitos(ev.target.value, 9);
+                },
+              })}
             />
           </Dato>
-          <Dato etiqueta="Fecha de nacimiento" icono="bi-calendar-event-fill">
+          <Dato etiqueta="Fecha de nacimiento" icono="bi-calendar-event-fill" error={e.fechaNacimiento?.message}>
             <input
               type="date"
-              name="fechaNacimiento"
-              value={form.fechaNacimiento}
-              onChange={cambiar}
-              required
               min="1900-01-01"
               max={hoy()}
-              className={`${campoIcono} [color-scheme:dark]`}
+              className={`${campoIcono(e.fechaNacimiento)} [color-scheme:dark]`}
+              {...datos.register("fechaNacimiento")}
             />
           </Dato>
-          <Dato etiqueta="Género" icono="bi-gender-ambiguous">
-            <Selector name="genero" value={form.genero} onChange={cambiar} opciones={GENEROS} className={campoIcono} />
+          <Dato etiqueta="Género" icono="bi-gender-ambiguous" error={e.genero?.message}>
+            <Controller
+              name="genero"
+              control={datos.control}
+              render={({ field }) => (
+                <Selector
+                  name="genero"
+                  value={field.value}
+                  onChange={field.onChange}
+                  opciones={GENEROS}
+                  className={campoIcono(e.genero)}
+                />
+              )}
+            />
           </Dato>
         </div>
 
         <Dato etiqueta="Correo electrónico" icono="bi-envelope-fill">
-          <input type="email" value={usuario.email} disabled className={campoIcono} />
+          <input type="email" value={usuario.email} disabled readOnly className={campoIcono()} />
         </Dato>
         <p className="-mt-2 text-xs text-surface-500">El correo y el DNI no se pueden cambiar desde aquí.</p>
 
         <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-primary-100/70">
           <input
             type="checkbox"
-            checked={promociones}
-            onChange={(e) => setPromociones(e.target.checked)}
             className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-yellow-400"
+            {...datos.register("promociones")}
           />
           <span>
             Acepto recibir promociones e información de {CINE.nombre} y entiendo que algunos beneficios solo podrán
@@ -286,14 +298,18 @@ const Datos = () => {
 
         <button
           type="submit"
-          disabled={guardando}
+          disabled={datos.formState.isSubmitting}
           className="mt-auto rounded-full bg-accent-400 px-6 py-3 font-bold text-black transition-colors hover:bg-accent-300 disabled:opacity-60"
         >
-          {guardando ? "Guardando…" : "Guardar cambios"}
+          {datos.formState.isSubmitting ? "Guardando…" : "Guardar cambios"}
         </button>
       </form>
 
-      <form onSubmit={guardarClave} className="flex flex-col gap-4 self-start rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6">
+      <form
+        onSubmit={guardarClave}
+        noValidate
+        className="flex flex-col gap-4 self-start rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6"
+      >
         <h2 className="flex items-center gap-2 text-lg font-bold text-white">
           <i className="bi bi-shield-lock-fill text-accent-400" aria-hidden="true" />
           Cambiar contraseña
@@ -303,33 +319,31 @@ const Datos = () => {
           <span className="text-sm text-surface-300">Nueva contraseña</span>
           <input
             type="password"
-            value={clave}
-            onChange={(e) => setClave(e.target.value)}
-            required
             autoComplete="new-password"
             placeholder="Mínimo 6 caracteres"
-            className={`${campo} mt-1`}
+            className={`${campo} mt-1 ${ec.clave ? "border-red-500/70" : ""}`}
+            {...clave.register("clave")}
           />
+          {ec.clave && <span role="alert" className="mt-1 block text-xs text-red-300">{ec.clave.message}</span>}
         </label>
 
         <label className="block">
           <span className="text-sm text-surface-300">Repite la contraseña</span>
           <input
             type="password"
-            value={clave2}
-            onChange={(e) => setClave2(e.target.value)}
-            required
             autoComplete="new-password"
-            className={`${campo} mt-1`}
+            className={`${campo} mt-1 ${ec.clave2 ? "border-red-500/70" : ""}`}
+            {...clave.register("clave2")}
           />
+          {ec.clave2 && <span role="alert" className="mt-1 block text-xs text-red-300">{ec.clave2.message}</span>}
         </label>
 
         <button
           type="submit"
-          disabled={cambiando}
+          disabled={clave.formState.isSubmitting}
           className="rounded-full border-2 border-primary-500 px-6 py-3 font-bold text-white transition-colors hover:bg-primary-600 disabled:opacity-60"
         >
-          {cambiando ? "Actualizando…" : "Actualizar contraseña"}
+          {clave.formState.isSubmitting ? "Actualizando…" : "Actualizar contraseña"}
         </button>
       </form>
     </div>
