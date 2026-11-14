@@ -13,5 +13,5 @@ update public.peliculas set trailer_url = 'https://www.youtube.com/watch?v=O0e57
 update public.peliculas set trailer_url = 'https://www.youtube.com/watch?v=Ye8lukNZshI' where id = 'la-tribu';
 update public.peliculas set trailer_url = 'https://www.youtube.com/watch?v=8E_KMh-02fQ' where id = 'el-poder-de-la-red';
 update public.peliculas set trailer_url = 'https://www.youtube.com/watch?v=0D9f0xOPvHg' where id = 'clayface';
-update public.peliculas set trailer_url = 'https://www.youtube.com/watch?v=T9RvKyAGkDc' where id = 'street-fighter';
+update public.peliculas set trailer_url = 'https://www.youtube.com/watch?v=mzYHS4VIjgY' where id = 'street-fighter';
 update public.peliculas set trailer_url = 'https://www.youtube.com/watch?v=MG14cdR2x8E' where id = 'caballo-salvaje-nueve';
