@@ -17,6 +17,7 @@ const Resumen = lazy(() => import("./pages/Resumen.jsx"));
 const Ticket = lazy(() => import("./pages/Ticket.jsx"));
 const Perfil = lazy(() => import("./pages/Perfil.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
+const Admin = lazy(() => import("./admin/Admin.jsx"));
 const RecuperarContrasena = lazy(() => import("./pages/RecuperarContrasena.jsx"));
 const RestablecerContrasena = lazy(() => import("./pages/RestablecerContrasena.jsx"));
 const Legal = lazy(() => import("./pages/Legal.jsx"));
@@ -27,9 +28,11 @@ const ComoLlegarPagina = lazy(() => import("./pages/ComoLlegarPagina.jsx"));
 // Páginas a pantalla completa: sin header ni footer
 const RUTAS_SIN_MARCO = ["/login", "/recuperar-contrasena", "/restablecer-contrasena"];
 
+const sinMarco = (pathname) => RUTAS_SIN_MARCO.includes(pathname) || pathname.startsWith("/admin");
+
 const Marco = ({ children }) => {
   const { pathname } = useLocation();
-  return RUTAS_SIN_MARCO.includes(pathname) ? null : children;
+  return sinMarco(pathname) ? null : children;
 };
 
 const Cargando = () => (
@@ -52,6 +55,7 @@ function App() {
             <Route path="/pelicula/:id" element={<Pelicula />} />
             <Route path="/pelicula/:id/butacas/:funcionId" element={<Butacas />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/admin/*" element={<Admin />} />
             <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
             <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
             <Route path="/normas" element={<Normas />} />
