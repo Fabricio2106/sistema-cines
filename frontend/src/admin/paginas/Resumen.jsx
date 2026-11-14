@@ -11,25 +11,28 @@ const Resumen = () => {
     <>
       <TituloPagina titulo="Resumen" descripcion="Cómo va el cine hoy y en los últimos 7 días." />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Indicador icono="bi-ticket-perforated-fill" valor={hoy.entradas} etiqueta="Entradas hoy" detalle="+12% vs. ayer" />
         <Indicador icono="bi-cash-coin" valor={soles(hoy.ingresos)} etiqueta="Ingresos hoy" detalle="+9% vs. ayer" />
         <Indicador icono="bi-people-fill" valor="68%" etiqueta="Ocupación promedio" />
         <Indicador icono="bi-film" valor="10" etiqueta="Películas en cartelera" />
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_1fr]">
-        <Tarjeta className="p-6">
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.6fr_1fr]">
+        <Tarjeta className="p-4 sm:p-6">
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold">Ingresos de la semana</h2>
               <p className="text-sm text-primary-100/60">Total: {soles(totalSemana)}</p>
             </div>
           </div>
-          <ul className="flex h-56 items-end gap-3" aria-label="Ingresos por día">
+          <ul className="flex h-56 items-end gap-1.5 sm:gap-3" aria-label="Ingresos por día">
             {VENTAS_SEMANA.map((d) => (
-              <li key={d.dia} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
-                <span className="text-xs font-semibold text-primary-100/70">{soles(d.ingresos)}</span>
+              <li key={d.dia} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
+                <span className="text-[10px] font-semibold text-primary-100/70 sm:text-xs">
+                  <span className="sm:hidden">{d.ingresos >= 1000 ? `${(d.ingresos / 1000).toFixed(1)}k` : d.ingresos}</span>
+                  <span className="hidden sm:inline">{soles(d.ingresos)}</span>
+                </span>
                 <div
                   className="w-full rounded-t-lg bg-gradient-to-t from-primary-700 to-primary-500"
                   style={{ height: `${(d.ingresos / maximo) * 100}%` }}

@@ -75,7 +75,7 @@ const Funciones = () => {
           </Tabla>
         </Tarjeta>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {SALAS.map((s) => (
             <Tarjeta key={s.id} className="p-6">
               <div className="mb-5 flex items-start justify-between gap-4">
@@ -116,7 +116,7 @@ const Funciones = () => {
                 ))}
               </select>
             </Campo>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Campo etiqueta="Hora">
                 <input name="hora" type="time" value={nueva.hora} onChange={cambiar} required className={`${entrada} [color-scheme:dark]`} />
               </Campo>

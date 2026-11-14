@@ -80,7 +80,7 @@ const Compras = () => {
 
   return (
     <div>
-      <div className="mb-6 grid gap-4 sm:grid-cols-2">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Resumen icono="bi-ticket-perforated-fill" valor={compras.length} etiqueta="Compras realizadas" />
         <Resumen icono="bi-cash-coin" valor={soles(totalGastado)} etiqueta="Total gastado" />
       </div>
@@ -110,7 +110,7 @@ const Compras = () => {
             {compras.slice(0, visibles).map((c) => (
               <li
                 key={c.id}
-                className="grid items-center gap-x-4 gap-y-2 px-5 py-4 md:grid-cols-[2fr_1fr_1.2fr_1fr_auto] md:px-6"
+                className="grid grid-cols-1 items-center gap-x-4 gap-y-2 px-5 py-4 md:grid-cols-[2fr_1fr_1.2fr_1fr_auto] md:px-6"
               >
                 <div className="flex items-start gap-3">
                   <i className="bi bi-ticket-perforated-fill mt-0.5 text-lg text-accent-400" aria-hidden="true" />
@@ -220,7 +220,7 @@ const Datos = () => {
   const campoIcono = (error) => `${campo} pl-11 ${error ? "border-red-500/70" : ""}`;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
       <form
         onSubmit={guardarDatos}
         noValidate
@@ -231,7 +231,7 @@ const Datos = () => {
           Datos personales
         </h2>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Dato etiqueta="Nombre" icono="bi-person-fill" error={e.nombre?.message}>
             <input autoComplete="given-name" className={campoIcono(e.nombre)} {...datos.register("nombre")} />
           </Dato>

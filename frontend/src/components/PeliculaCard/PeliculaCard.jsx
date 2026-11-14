@@ -51,7 +51,9 @@ const PeliculaCard = ({ pelicula }) => {
           {desde !== null && (
             <>
               <span aria-hidden="true"> · </span>
-              Desde <span className="font-semibold text-accent-400">S/ {desde}</span>
+              <span className="whitespace-nowrap">
+                Desde <span className="font-semibold text-accent-400">S/ {desde}</span>
+              </span>
             </>
           )}
         </p>
