@@ -11,7 +11,7 @@ const PeliculaCard = ({ pelicula }) => {
     <Link
       to={`/pelicula/${id}`}
       aria-label={`Ver ${titulo}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-accent-500/50 hover:shadow-2xl hover:shadow-primary-500/20 focus-visible:border-accent-500 focus-visible:outline-none"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-accent-500/50 hover:shadow-2xl hover:shadow-primary-500/20 focus-visible:border-accent-500 focus-visible:outline-none"
     >
       <div className="relative overflow-hidden">
         <img

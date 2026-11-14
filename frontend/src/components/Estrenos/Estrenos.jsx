@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import Skeleton from "react-loading-skeleton";
+import Aparece from "../Aparece/Aparece";
 import PeliculaCard from "../PeliculaCard/PeliculaCard";
 import { useCartelera } from "../../context/CarteleraContext";
 import { esEstreno } from "../../utils/estreno";
@@ -42,7 +44,6 @@ const Estrenos = () => {
           </div>
         )}
 
-        {cargando && <p className="mt-12 text-center text-surface-400">Cargando cartelera…</p>}
         {error && (
           <p role="alert" className="mt-12 text-center text-red-300">
             No pudimos cargar la cartelera. Recarga la página en unos segundos.
@@ -52,9 +53,21 @@ const Estrenos = () => {
           <p className="mt-12 text-center text-surface-400">No hay películas en cartelera por ahora.</p>
         )}
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
-          {visibles.map((pelicula) => (
-            <PeliculaCard key={pelicula.id} pelicula={pelicula} />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4" aria-busy={cargando}>
+          {cargando &&
+            Array.from({ length: 8 }, (_, i) => (
+              <div key={i}>
+                <div className="aspect-[2/3] overflow-hidden rounded-2xl">
+                  <Skeleton height="100%" containerClassName="block h-full leading-none" />
+                </div>
+                <Skeleton height={18} width="80%" className="mt-3" />
+                <Skeleton height={14} width="50%" />
+              </div>
+            ))}
+          {visibles.map((pelicula, i) => (
+            <Aparece key={pelicula.id} retraso={(i % 4) * 0.08}>
+              <PeliculaCard pelicula={pelicula} />
+            </Aparece>
           ))}
         </div>
       </div>
