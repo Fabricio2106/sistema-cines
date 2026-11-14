@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../../assets/cinerama-letras.png";
 import { useAuth } from "../../context/AuthContext";
@@ -15,7 +16,7 @@ const Navbar = () => {
   const [perfilAbierto, setPerfilAbierto] = useState(false);
   const perfilRef = useRef(null);
   const { pathname, hash } = useLocation();
-  const { usuario, salir } = useAuth();
+  const { usuario, salir: cerrarSesion } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -48,6 +49,11 @@ const Navbar = () => {
   const estaActivo = (link) => {
     const [ruta, ancla = ""] = link.split("#");
     return pathname === (ruta || "/") && hash === (ancla ? `#${ancla}` : "");
+  };
+
+  const salir = async () => {
+    await cerrarSesion();
+    toast.success("Cerraste tu sesión");
   };
 
   // El logo siempre lleva al inicio y sube al principio de la página

@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useCartelera } from "../context/CarteleraContext";
+import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
 
 const Pelicula = () => {
   const { id } = useParams();
@@ -7,9 +8,7 @@ const Pelicula = () => {
   const pelicula = buscarPelicula(id);
 
   if (cargando) {
-    return (
-      <main className="min-h-screen flex items-center justify-center text-surface-400">Cargando…</main>
-    );
+    return <PaginaCargando />;
   }
 
   if (!pelicula) {

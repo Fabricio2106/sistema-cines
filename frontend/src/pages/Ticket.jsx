@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { buscarCompra } from "../services/compras";
+import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
 
 const Ticket = () => {
   const { id } = useParams();
@@ -15,9 +16,7 @@ const Ticket = () => {
   }, [id]);
 
   if (compra === undefined) {
-    return (
-      <main className="min-h-screen flex items-center justify-center text-surface-400">Cargando…</main>
-    );
+    return <PaginaCargando />;
   }
 
   // La base solo devuelve compras del usuario con sesión, así que ajena = no existe

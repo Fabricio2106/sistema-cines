@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
 import Selector from "../components/Selector/Selector";
 import { useAuth } from "../context/AuthContext";
@@ -177,27 +178,24 @@ const Datos = () => {
     genero: usuario.genero,
   });
   const [promociones, setPromociones] = useState(usuario.promociones);
-  const [aviso, setAviso] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
   const [clave, setClave] = useState("");
   const [clave2, setClave2] = useState("");
-  const [avisoClave, setAvisoClave] = useState(null);
   const [cambiando, setCambiando] = useState(false);
 
   const cambiar = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const guardarDatos = async (e) => {
     e.preventDefault();
-    setAviso(null);
     const problema = validarDatosPersonales({ ...form, dni: usuario.dni || "00000000" });
-    if (problema) return setAviso({ tipo: "error", texto: problema });
+    if (problema) return toast.error(problema);
     setGuardando(true);
     try {
       await actualizarDatos({ ...form, promociones });
-      setAviso({ tipo: "ok", texto: "Tus datos se guardaron." });
+      toast.success("Tus datos se guardaron.");
     } catch (err) {
-      setAviso({ tipo: "error", texto: err.message });
+      toast.error(err.message);
     } finally {
       setGuardando(false);
     }
@@ -205,17 +203,16 @@ const Datos = () => {
 
   const guardarClave = async (e) => {
     e.preventDefault();
-    setAvisoClave(null);
-    if (clave.length < 6) return setAvisoClave({ tipo: "error", texto: "La contraseña debe tener al menos 6 caracteres." });
-    if (clave !== clave2) return setAvisoClave({ tipo: "error", texto: "Las contraseñas no coinciden." });
+    if (clave.length < 6) return toast.error("La contraseña debe tener al menos 6 caracteres.");
+    if (clave !== clave2) return toast.error("Las contraseñas no coinciden.");
     setCambiando(true);
     try {
       await cambiarPassword(clave);
       setClave("");
       setClave2("");
-      setAvisoClave({ tipo: "ok", texto: "Tu contraseña se actualizó." });
+      toast.success("Tu contraseña se actualizó.");
     } catch (err) {
-      setAvisoClave({ tipo: "error", texto: err.message });
+      toast.error(err.message);
     } finally {
       setCambiando(false);
     }
@@ -287,8 +284,6 @@ const Datos = () => {
           </span>
         </label>
 
-        {aviso && <Aviso tipo={aviso.tipo}>{aviso.texto}</Aviso>}
-
         <button
           type="submit"
           disabled={guardando}
@@ -328,8 +323,6 @@ const Datos = () => {
             className={`${campo} mt-1`}
           />
         </label>
-
-        {avisoClave && <Aviso tipo={avisoClave.tipo}>{avisoClave.texto}</Aviso>}
 
         <button
           type="submit"

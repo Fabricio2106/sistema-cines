@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCartelera } from "../context/CarteleraContext";
 import { asientosOcupados } from "../services/compras";
+import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
 
 const estilos = {
   libre: "bg-surface-700 hover:bg-primary-500 text-white",
@@ -33,9 +34,7 @@ const Butacas = () => {
   }, [id, funcionId]);
 
   if (cargando) {
-    return (
-      <main className="min-h-screen flex items-center justify-center text-surface-400">Cargando…</main>
-    );
+    return <PaginaCargando />;
   }
 
   if (!pelicula || !funcion || !sala) {

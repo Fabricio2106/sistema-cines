@@ -1,7 +1,9 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useCartelera } from "../context/CarteleraContext";
 import { crearCompra } from "../services/compras";
+import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
 
 const Resumen = () => {
   const { state } = useLocation();
@@ -15,9 +17,7 @@ const Resumen = () => {
   const asientos = state?.asientos ?? [];
 
   if (cargando) {
-    return (
-      <main className="min-h-screen flex items-center justify-center text-surface-400">Cargando…</main>
-    );
+    return <PaginaCargando />;
   }
 
   if (!pelicula || !funcion || asientos.length === 0) {
@@ -33,6 +33,7 @@ const Resumen = () => {
     try {
       const compra = await crearCompra({ pelicula, funcion, asientos });
       navigate(`/ticket/${compra.id}`, { replace: true });
+      toast.success("¡Compra realizada! Aquí está tu ticket");
     } catch (err) {
       setError(err.message);
       setEnviando(false);
