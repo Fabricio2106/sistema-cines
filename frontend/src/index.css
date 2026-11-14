@@ -34,3 +34,38 @@ body {
         display: none;
     }
 }
+
+
+/* Calendario de funciones (react-day-picker) con la paleta del sitio */
+.calendario-cine {
+    --rdp-accent-color: #facc15;
+    --rdp-accent-background-color: rgba(250, 204, 21, 0.15);
+    --rdp-day-height: 40px;
+    --rdp-day-width: 40px;
+    --rdp-day_button-height: 38px;
+    --rdp-day_button-width: 38px;
+    color: #fff;
+}
+.calendario-cine .rdp-chevron {
+    fill: #facc15;
+}
+.calendario-cine .rdp-selected .rdp-day_button {
+    background: #facc15;
+    border-color: #facc15;
+    color: #000;
+    font-weight: 700;
+}
+.calendario-cine .rdp-today:not(.rdp-selected) .rdp-day_button {
+    border-color: rgba(250, 204, 21, 0.6);
+    color: #facc15;
+}
+.calendario-cine .rdp-disabled {
+    opacity: 0.3;
+}
+.calendario-cine .rdp-weekday {
+    color: rgba(254, 226, 226, 0.6);
+    text-transform: capitalize;
+}
+.calendario-cine .rdp-month_caption {
+    text-transform: capitalize;
+}

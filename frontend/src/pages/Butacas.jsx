@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useCartelera } from "../context/CarteleraContext";
 import { asientosOcupados } from "../services/compras";
 import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
+import { esFechaValida, funcionYaEmpezo, hoyLima, textoFecha } from "../utils/fechas";
 
 const estilos = {
   libre: "bg-surface-700 hover:bg-primary-500 text-white",
@@ -13,6 +14,8 @@ const estilos = {
 const Butacas = () => {
   const { id, funcionId } = useParams();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const fecha = esFechaValida(params.get("fecha")) ? params.get("fecha") : hoyLima();
   const { buscarPelicula, salas, cargando } = useCartelera();
   const pelicula = buscarPelicula(id);
   const funcion = pelicula?.funciones.find((f) => f.id === funcionId);
@@ -22,7 +25,7 @@ const Butacas = () => {
 
   useEffect(() => {
     let activo = true;
-    asientosOcupados(id, funcionId).then((lista) => {
+    asientosOcupados(id, funcionId, fecha).then((lista) => {
       if (!activo) return;
       setOcupadas(lista);
       // Si alguien compró una butaca que tenías elegida, se quita de tu selección
@@ -31,16 +34,16 @@ const Butacas = () => {
     return () => {
       activo = false;
     };
-  }, [id, funcionId]);
+  }, [id, funcionId, fecha]);
 
   if (cargando) {
     return <PaginaCargando />;
   }
 
-  if (!pelicula || !funcion || !sala) {
+  if (!pelicula || !funcion || !sala || funcionYaEmpezo(fecha, funcion.hora)) {
     return (
       <main className="min-h-screen pt-32 px-6 text-center text-white">
-        <h1 className="text-3xl font-bold mb-4">Función no encontrada</h1>
+        <h1 className="text-3xl font-bold mb-4">Función no disponible</h1>
         <Link to="/#estrenos" className="text-accent-400 hover:underline">
           Volver a los estrenos
         </Link>
@@ -60,12 +63,12 @@ const Butacas = () => {
   return (
     <main className="min-h-screen pt-24 pb-32 px-4 sm:px-12 text-white">
       <div className="max-w-3xl mx-auto">
-        <Link to={`/pelicula/${pelicula.id}#funciones`} className="text-sm text-accent-400 hover:underline">
+        <Link to={`/pelicula/${pelicula.id}?fecha=${fecha}#funciones`} className="text-sm text-accent-400 hover:underline">
           ← Volver a {pelicula.titulo}
         </Link>
         <h1 className="text-2xl sm:text-3xl font-bold mt-2">{pelicula.titulo}</h1>
         <p className="text-surface-400 mb-8">
-          {sala.nombre} · {funcion.hora} · S/ {funcion.precio} por entrada
+          <span className="first-letter:uppercase inline-block">{textoFecha(fecha)}</span> · {sala.nombre} · {funcion.hora} · S/ {funcion.precio} por entrada
         </p>
 
         <div className="mb-8">
@@ -127,7 +130,7 @@ const Butacas = () => {
             disabled={seleccion.length === 0}
             onClick={() =>
               navigate("/resumen", {
-                state: { peliculaId: pelicula.id, funcionId: funcion.id, asientos: seleccion },
+                state: { peliculaId: pelicula.id, funcionId: funcion.id, asientos: seleccion, fecha },
               })
             }
             className="px-6 py-3 rounded-full font-bold bg-accent-500 hover:bg-accent-600 text-black disabled:opacity-40 disabled:cursor-not-allowed transition-colors"

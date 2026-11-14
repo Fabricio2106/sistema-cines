@@ -8,6 +8,7 @@ const aPelicula = (fila) => ({
   descripcion: fila.descripcion,
   poster: fila.poster_url,
   banner: fila.banner_url,
+  trailer: fila.trailer_url ?? null,
   fechaEstreno: fila.fecha_estreno ?? null,
   funciones: (fila.funciones ?? [])
     .filter((f) => f.activa)
