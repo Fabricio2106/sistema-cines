@@ -33,7 +33,7 @@ export default [
       'react/prop-types': 'off',
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true, allowExportNames: ['useAuth', 'useCartelera'] },
+        { allowConstantExport: true, allowExportNames: ['useAuth', 'useCartelera', 'useAdmin'] },
       ],
     },
   },
