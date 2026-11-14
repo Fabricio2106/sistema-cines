@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import * as Menu from "@radix-ui/react-dropdown-menu";
 import toast from "react-hot-toast";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../../assets/cinerama-letras.png";
@@ -13,8 +14,6 @@ const navbarLinks = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [perfilAbierto, setPerfilAbierto] = useState(false);
-  const perfilRef = useRef(null);
   const { pathname, hash } = useLocation();
   const { usuario, salir: cerrarSesion } = useAuth();
 
@@ -28,23 +27,7 @@ const Navbar = () => {
   // Cierra el menú móvil al navegar
   useEffect(() => {
     setIsOpen(false);
-    setPerfilAbierto(false);
   }, [pathname, hash]);
-
-  // Cierra el menú de perfil al hacer clic fuera o al pulsar Escape
-  useEffect(() => {
-    if (!perfilAbierto) return undefined;
-    const fuera = (e) => {
-      if (perfilRef.current && !perfilRef.current.contains(e.target)) setPerfilAbierto(false);
-    };
-    const tecla = (e) => e.key === "Escape" && setPerfilAbierto(false);
-    document.addEventListener("mousedown", fuera);
-    document.addEventListener("keydown", tecla);
-    return () => {
-      document.removeEventListener("mousedown", fuera);
-      document.removeEventListener("keydown", tecla);
-    };
-  }, [perfilAbierto]);
 
   const estaActivo = (link) => {
     const [ruta, ancla = ""] = link.split("#");
@@ -110,54 +93,48 @@ const Navbar = () => {
 
         <div className="hidden items-center md:flex">
           {usuario ? (
-            <div ref={perfilRef} className="relative">
-              <button
-                type="button"
-                onClick={() => setPerfilAbierto((abierto) => !abierto)}
-                aria-label="Menú de perfil"
-                aria-haspopup="menu"
-                aria-expanded={perfilAbierto}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-400 text-xl text-black shadow-lg shadow-accent-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-300"
-              >
-                <i className="bi bi-person-fill" />
-              </button>
-              {perfilAbierto && (
-                <div
-                  role="menu"
-                  className="absolute right-0 mt-3 w-64 overflow-hidden rounded-2xl border border-primary-700/50 bg-primary-950 shadow-2xl shadow-black/50"
+            <Menu.Root>
+              <Menu.Trigger asChild>
+                <button
+                  type="button"
+                  aria-label="Menú de perfil"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-400 text-xl text-black shadow-lg shadow-accent-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-300"
+                >
+                  <i className="bi bi-person-fill" />
+                </button>
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Content
+                  align="end"
+                  sideOffset={12}
+                  className="z-[70] w-64 overflow-hidden rounded-2xl border border-primary-700/50 bg-primary-950 shadow-2xl shadow-black/50"
                 >
                   <div className="border-b border-primary-800/60 px-4 py-3">
                     <p className="text-xs text-primary-100/50">Sesión iniciada como</p>
                     <p className="truncate text-sm font-semibold text-white">{usuario.email}</p>
                   </div>
-                  <Link
-                    to="/perfil?tab=datos"
-                    role="menuitem"
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-primary-100/80 transition-colors hover:bg-white/10 hover:text-white"
-                  >
-                    <i className="bi bi-person-vcard-fill text-accent-400" aria-hidden="true" />
-                    Mis datos
-                  </Link>
-                  <Link
-                    to="/perfil?tab=compras"
-                    role="menuitem"
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-primary-100/80 transition-colors hover:bg-white/10 hover:text-white"
-                  >
-                    <i className="bi bi-ticket-perforated-fill text-accent-400" aria-hidden="true" />
-                    Mis compras
-                  </Link>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={salir}
-                    className="flex w-full items-center gap-3 border-t border-primary-800/60 px-4 py-3 text-left text-sm font-semibold text-primary-100/80 transition-colors hover:bg-primary-600 hover:text-white"
+                  <Menu.Item asChild>
+                    <Link to="/perfil?tab=datos" className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm font-semibold text-primary-100/80 outline-none transition-colors data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                      <i className="bi bi-person-vcard-fill text-accent-400" aria-hidden="true" />
+                      Mis datos
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item asChild>
+                    <Link to="/perfil?tab=compras" className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm font-semibold text-primary-100/80 outline-none transition-colors data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                      <i className="bi bi-ticket-perforated-fill text-accent-400" aria-hidden="true" />
+                      Mis compras
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item
+                    onSelect={salir}
+                    className="flex cursor-pointer items-center gap-3 border-t border-primary-800/60 px-4 py-3 text-sm font-semibold text-primary-100/80 outline-none transition-colors data-[highlighted]:bg-primary-600 data-[highlighted]:text-white"
                   >
                     <i className="bi bi-box-arrow-right" aria-hidden="true" />
                     Salir
-                  </button>
-                </div>
-              )}
-            </div>
+                  </Menu.Item>
+                </Menu.Content>
+              </Menu.Portal>
+            </Menu.Root>
           ) : (
             <NavLink to="/login" className={botonIngresar}>
               <i className="bi bi-person-circle" />

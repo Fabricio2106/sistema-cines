@@ -4,6 +4,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useCartelera } from "../context/CarteleraContext";
 import { crearCompra } from "../services/compras";
 import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
+import { esFechaValida, textoFecha } from "../utils/fechas";
 
 const Resumen = () => {
   const { state } = useLocation();
@@ -15,23 +16,24 @@ const Resumen = () => {
   const pelicula = buscarPelicula(state?.peliculaId);
   const funcion = pelicula?.funciones.find((f) => f.id === state?.funcionId);
   const asientos = state?.asientos ?? [];
+  const fecha = state?.fecha;
 
   if (cargando) {
     return <PaginaCargando />;
   }
 
-  if (!pelicula || !funcion || asientos.length === 0) {
+  if (!pelicula || !funcion || asientos.length === 0 || !esFechaValida(fecha)) {
     return <Navigate to="/#estrenos" replace />;
   }
 
   const total = asientos.length * funcion.precio;
-  const volver = `/pelicula/${pelicula.id}/butacas/${funcion.id}`;
+  const volver = `/pelicula/${pelicula.id}/butacas/${funcion.id}?fecha=${fecha}`;
 
   const confirmar = async () => {
     setError("");
     setEnviando(true);
     try {
-      const compra = await crearCompra({ pelicula, funcion, asientos });
+      const compra = await crearCompra({ pelicula, funcion, asientos, fecha });
       navigate(`/ticket/${compra.id}`, { replace: true });
       toast.success("¡Compra realizada! Aquí está tu ticket");
     } catch (err) {
@@ -42,6 +44,7 @@ const Resumen = () => {
 
   const filas = [
     ["Película", pelicula.titulo],
+    ["Fecha", textoFecha(fecha)],
     ["Función", `${funcion.hora} · ${salas[funcion.sala]?.nombre}`],
     ["Butacas", asientos.join(", ")],
     ["Precio por entrada", `S/ ${funcion.precio}`],
