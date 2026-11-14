@@ -13,14 +13,14 @@ const ComoLlegar = () => {
             Encuéntranos
           </h2>
           <div className="w-24 h-1 bg-accent-400 mx-auto"></div>
-          <p className="text-gray-400 mt-4">Visítanos y disfruta del mejor cine</p>
+          <p className="text-primary-100/60 mt-4">Visítanos y disfruta del mejor cine</p>
         </div>
         
         <div className="grid lg:grid-cols-5 gap-8">
           {/* Información de ubicación - 2 columnas */}
           <div className="lg:col-span-2 space-y-6">
             {/* Dirección */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-xl border border-gray-700 hover:border-primary-600/50 transition-all duration-300">
+            <div className="bg-primary-900/30 p-6 rounded-xl border border-primary-700/40 hover:border-primary-600/50 transition-all duration-300">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,14 +30,14 @@ const ComoLlegar = () => {
                 </div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Dirección</h3>
-                  <p className="text-gray-300 text-sm">{CINE.direccion}</p>
-                  <p className="text-gray-400 text-sm">{CINE.ciudad}</p>
+                  <p className="text-primary-100/80 text-sm">{CINE.direccion}</p>
+                  <p className="text-primary-100/60 text-sm">{CINE.ciudad}</p>
                 </div>
               </div>
             </div>
 
             {/* Horarios */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-xl border border-gray-700 hover:border-accent-400/50 transition-all duration-300">
+            <div className="bg-primary-900/30 p-6 rounded-xl border border-primary-700/40 hover:border-accent-400/50 transition-all duration-300">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-accent-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@ const ComoLlegar = () => {
             </div>
 
             {/* Contacto */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-xl border border-gray-700 hover:border-primary-600/50 transition-all duration-300">
+            <div className="bg-primary-900/30 p-6 rounded-xl border border-primary-700/40 hover:border-primary-600/50 transition-all duration-300">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,8 +61,8 @@ const ComoLlegar = () => {
                 </div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Contacto</h3>
-                  <p className="text-gray-300 text-sm">{CINE.telefono} · {CINE.celular}</p>
-                  <p className="text-gray-400 text-sm">{CINE.correo}</p>
+                  <p className="text-primary-100/80 text-sm">{CINE.telefono} · {CINE.celular}</p>
+                  <p className="text-primary-100/60 text-sm">{CINE.correo}</p>
                 </div>
               </div>
             </div>
@@ -70,7 +70,7 @@ const ComoLlegar = () => {
 
           {/* Mapa - 3 columnas */}
           <div className="lg:col-span-3">
-            <div className="h-full min-h-[500px] rounded-xl overflow-hidden shadow-2xl border border-gray-700 hover:border-primary-600/50 transition-all duration-300">
+            <div className="h-full min-h-[500px] rounded-xl overflow-hidden shadow-2xl border border-primary-700/40 hover:border-primary-600/50 transition-all duration-300">
               <iframe
                 title={`Mapa de ${CINE.nombre}`}
                 src={`https://www.google.com/maps?q=${encodeURIComponent(`${CINE.nombre}, ${CINE.direccion}, ${CINE.ciudad}`)}&output=embed`}

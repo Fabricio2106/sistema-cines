@@ -24,6 +24,7 @@ const Legal = lazy(() => import("./pages/Legal.jsx"));
 const LibroReclamaciones = lazy(() => import("./pages/LibroReclamaciones.jsx"));
 const Normas = lazy(() => import("./pages/Normas.jsx"));
 const ComoLlegarPagina = lazy(() => import("./pages/ComoLlegarPagina.jsx"));
+const NoEncontrada = lazy(() => import("./pages/NoEncontrada.jsx"));
 
 // Páginas a pantalla completa: sin header ni footer
 const RUTAS_SIN_MARCO = ["/login", "/recuperar-contrasena", "/restablecer-contrasena"];
@@ -66,6 +67,7 @@ function App() {
             <Route path="/ticket/:id" element={<RutaPrivada><Ticket /></RutaPrivada>} />
             <Route path="/perfil" element={<RutaPrivada><Perfil /></RutaPrivada>} />
             <Route path="/mis-entradas" element={<Navigate to="/perfil?tab=compras" replace />} />
+            <Route path="*" element={<NoEncontrada />} />
           </Routes>
         </Suspense>
         <Marco><Footer /></Marco>
