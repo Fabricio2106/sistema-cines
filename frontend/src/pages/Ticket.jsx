@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import { buscarCompra } from "../services/compras";
 import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
 
@@ -60,9 +61,12 @@ const Ticket = () => {
             ))}
           </dl>
           <div className="border-t-2 border-dashed border-surface-700 px-5 py-5 text-center">
+            <div className="mx-auto mb-4 w-fit rounded-xl bg-white p-3">
+              <QRCodeSVG value={compra.codigo} size={132} level="M" title={`Código QR de la entrada ${compra.codigo}`} />
+            </div>
             <p className="text-xs text-surface-400">Código de entrada</p>
             <p className="text-3xl font-bold tracking-[0.3em] text-accent-400">{compra.codigo}</p>
-            <p className="text-xs text-surface-500 mt-2">Preséntalo en boletería</p>
+            <p className="text-xs text-surface-500 mt-2">Muestra este código QR en la puerta de la sala</p>
           </div>
         </section>
 
