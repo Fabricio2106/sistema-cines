@@ -29,9 +29,11 @@ export default [
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
       'react/jsx-no-target-blank': 'off',
+      // El proyecto no usa PropTypes ni TypeScript; los componentes son pequeños y de uso interno.
+      'react/prop-types': 'off',
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true },
+        { allowConstantExport: true, allowExportNames: ['useAuth', 'useCartelera'] },
       ],
     },
   },
