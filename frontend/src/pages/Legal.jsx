@@ -1,6 +1,14 @@
 import { Link, useParams } from "react-router-dom";
 import { LEGAL } from "../data/legal";
 import { CINE } from "../data/cine";
+import EncabezadoPagina from "../components/EncabezadoPagina/EncabezadoPagina";
+
+const ICONOS = {
+  "politica-de-datos-personales": "bi-shield-lock-fill",
+  "condiciones-de-uso-y-seguridad": "bi-person-lock",
+  "terminos-y-condiciones": "bi-file-earmark-text-fill",
+  "reglas-de-convivencia": "bi-people-fill",
+};
 
 const Legal = () => {
   const { tema } = useParams();
@@ -18,19 +26,41 @@ const Legal = () => {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-20 pt-28 text-surface-300">
-      <h1 className="mb-2 border-b-2 border-accent-400 pb-3 text-3xl font-bold text-white sm:text-4xl">
-        {pagina.titulo}
-      </h1>
-      <p className="mt-3 text-sm text-surface-400">
-        {CINE.razonSocial} · RUC {CINE.ruc}
-      </p>
-      <p className="mb-10 text-sm text-surface-500">Última actualización: noviembre de 2026</p>
+    <main className="mx-auto max-w-3xl px-6 pb-20 pt-32 text-primary-100/80">
+      <EncabezadoPagina icono={ICONOS[tema] ?? "bi-file-earmark-text-fill"} titulo={pagina.titulo}>
+        <p className="mt-4 text-sm text-primary-100/60">
+          {CINE.razonSocial} · RUC {CINE.ruc}
+        </p>
+        <p className="text-xs text-primary-100/40">Última actualización: noviembre de 2026</p>
+      </EncabezadoPagina>
 
-      <div className="space-y-8">
-        {pagina.secciones.map((s) => (
-          <section key={s.t}>
-            <h2 className="mb-3 text-xl font-bold text-white">{s.t}</h2>
+      {/* Salto a las otras páginas legales */}
+      <nav aria-label="Otras páginas legales" className="mb-10 flex flex-wrap justify-center gap-2">
+        {Object.entries(LEGAL).map(([clave, p]) => (
+          <Link
+            key={clave}
+            to={`/legal/${clave}`}
+            aria-current={clave === tema ? "page" : undefined}
+            className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors sm:text-sm ${
+              clave === tema
+                ? "border-accent-400 bg-accent-400 text-black"
+                : "border-primary-600/60 text-primary-100/80 hover:border-accent-400 hover:text-accent-400"
+            }`}
+          >
+            {p.titulo}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="space-y-5">
+        {pagina.secciones.map((s, i) => (
+          <section key={s.t} className="rounded-2xl border border-primary-700/40 bg-primary-900/30 p-6">
+            <h2 className="mb-3 flex items-center gap-3 text-lg font-bold text-white sm:text-xl">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600/30 text-sm text-accent-400">
+                {i + 1}
+              </span>
+              {s.t}
+            </h2>
             <div className="space-y-3 leading-relaxed">
               {s.lista && (
                 <ol className="list-decimal space-y-3 pl-6 marker:font-bold marker:text-accent-400">
@@ -47,8 +77,9 @@ const Legal = () => {
         ))}
       </div>
 
-      <Link to="/" className="mt-12 inline-block text-accent-400 hover:underline">
-        ← Volver al inicio
+      <Link to="/" className="mt-12 inline-flex items-center gap-2 font-semibold text-accent-400 hover:underline">
+        <i className="bi bi-arrow-left" aria-hidden="true" />
+        Volver al inicio
       </Link>
     </main>
   );

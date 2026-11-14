@@ -5,9 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registrarReclamo } from "../services/reclamos";
 import { CINE } from "../data/cine";
 import { esquemaReclamo } from "../utils/esquemas";
+import EncabezadoPagina from "../components/EncabezadoPagina/EncabezadoPagina";
 
 const campoBase =
-  "w-full px-4 py-3 rounded-lg bg-surface-800 border text-white placeholder-surface-500 focus:outline-none focus:ring-1";
+  "w-full px-4 py-3 rounded-lg bg-primary-950/70 border text-white placeholder-surface-500 focus:outline-none focus:ring-1";
 
 const vacio = {
   tipo: "reclamo",
@@ -23,9 +24,9 @@ const vacio = {
 };
 
 const Etiqueta = ({ htmlFor, children, opcional }) => (
-  <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-surface-200">
+  <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-primary-100/80">
     {children}
-    {opcional && <span className="ml-1 text-surface-500">(opcional)</span>}
+    {opcional && <span className="ml-1 text-primary-100/50">(opcional)</span>}
   </label>
 );
 
@@ -49,7 +50,7 @@ const LibroReclamaciones = () => {
 
   const tipo = watch("tipo");
   const campo = (nombre) =>
-    `${campoBase} ${errors[nombre] ? "border-red-500/70 focus:border-red-400 focus:ring-red-400" : "border-surface-700 focus:border-accent-400 focus:ring-accent-400"}`;
+    `${campoBase} ${errors[nombre] ? "border-red-500/70 focus:border-red-400 focus:ring-red-400" : "border-primary-800/70 focus:border-accent-400 focus:ring-accent-400"}`;
 
   const enviar = handleSubmit(async (datos) => {
     setError("");
@@ -69,10 +70,10 @@ const LibroReclamaciones = () => {
           <i className="bi bi-check-lg" aria-hidden="true" />
         </div>
         <h1 className="mb-3 text-3xl font-bold text-white">Registramos tu hoja de reclamación</h1>
-        <p className="text-surface-300">
+        <p className="text-primary-100/70">
           Número de registro: <strong className="text-accent-400">N.º {String(numero).padStart(6, "0")}</strong>
         </p>
-        <p className="mx-auto mt-3 max-w-md text-sm text-surface-400">
+        <p className="mx-auto mt-3 max-w-md text-sm text-primary-100/60">
           Guarda este número. Te responderemos al correo que indicaste dentro del plazo que establece la ley.
         </p>
         <Link to="/" className="mt-8 inline-block rounded-full bg-accent-500 px-7 py-3 font-bold text-black hover:bg-accent-400">
@@ -83,25 +84,24 @@ const LibroReclamaciones = () => {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 pb-20 pt-28">
-      <h1 className="mb-2 border-b-2 border-accent-400 pb-3 text-3xl font-bold text-white sm:text-4xl">
-        Libro de Reclamaciones
-      </h1>
-      <p className="mt-3 text-surface-300">
-        Registra aquí tu reclamo o queja sobre {CINE.nombre}. Los campos marcados con * son obligatorios.
-      </p>
-      <dl className="mb-8 mt-5 grid gap-x-6 gap-y-1 rounded-xl border border-surface-700 bg-surface-900/60 p-4 text-sm sm:grid-cols-2">
+    <main className="mx-auto max-w-2xl px-6 pb-20 pt-32">
+      <EncabezadoPagina
+        icono="bi-journal-bookmark-fill"
+        titulo="Libro de Reclamaciones"
+        descripcion={`Registra aquí tu reclamo o queja sobre ${CINE.nombre}. Los campos marcados con * son obligatorios.`}
+      />
+      <dl className="mb-8 grid gap-x-6 gap-y-1 rounded-xl border border-primary-800/70 bg-primary-900/30 p-4 text-sm sm:grid-cols-2">
         <div>
-          <dt className="inline text-surface-500">Razón social: </dt>
-          <dd className="inline text-surface-200">{CINE.razonSocial}</dd>
+          <dt className="inline text-primary-100/50">Razón social: </dt>
+          <dd className="inline text-primary-100/80">{CINE.razonSocial}</dd>
         </div>
         <div>
-          <dt className="inline text-surface-500">RUC: </dt>
-          <dd className="inline text-surface-200">{CINE.ruc}</dd>
+          <dt className="inline text-primary-100/50">RUC: </dt>
+          <dd className="inline text-primary-100/80">{CINE.ruc}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="inline text-surface-500">Establecimiento: </dt>
-          <dd className="inline text-surface-200">
+          <dt className="inline text-primary-100/50">Establecimiento: </dt>
+          <dd className="inline text-primary-100/80">
             {CINE.nombre}, {CINE.direccion}, {CINE.ciudad}
           </dd>
         </div>
@@ -109,7 +109,7 @@ const LibroReclamaciones = () => {
 
       <form onSubmit={enviar} noValidate className="space-y-6">
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-surface-200">Tipo *</legend>
+          <legend className="mb-2 text-sm font-medium text-primary-100/80">Tipo *</legend>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               ["reclamo", "Reclamo", "Disconformidad con el servicio o la compra"],
@@ -118,12 +118,12 @@ const LibroReclamaciones = () => {
               <label
                 key={valor}
                 className={`cursor-pointer rounded-xl border p-4 transition-colors ${
-                  tipo === valor ? "border-accent-500 bg-accent-500/10" : "border-surface-700 hover:border-surface-500"
+                  tipo === valor ? "border-accent-500 bg-accent-500/10" : "border-primary-800/70 hover:border-primary-500"
                 }`}
               >
                 <input type="radio" value={valor} className="sr-only" {...register("tipo")} />
                 <span className="block font-semibold text-white">{titulo}</span>
-                <span className="text-sm text-surface-400">{ayuda}</span>
+                <span className="text-sm text-primary-100/60">{ayuda}</span>
               </label>
             ))}
           </div>
@@ -197,7 +197,7 @@ const LibroReclamaciones = () => {
         </div>
 
         <div>
-          <label className="flex items-start gap-3 text-sm text-surface-300">
+          <label className="flex items-start gap-3 text-sm text-primary-100/70">
             <input type="checkbox" className="mt-1 h-4 w-4 accent-yellow-400" {...register("acepta")} />
             <span>
               Acepto el tratamiento de mis datos para atender este reclamo, según la{" "}
