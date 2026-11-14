@@ -1,4 +1,3 @@
-import React from "react";
 import { CINE } from "../../data/cine";
 
 const ComoLlegar = () => {
