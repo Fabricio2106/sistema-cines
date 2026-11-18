@@ -79,3 +79,36 @@ body {
 .calendario-cine .rdp-month_caption {
     text-transform: capitalize;
 }
+
+/* Barra de desplazamiento del panel: delgada, sin flechas y con los colores del sitio.
+   Se aplica con la clase "scroll-cine" a cualquier zona que se desplace.
+   Chrome, Edge y Safari usan los ::-webkit-scrollbar (sin flechas); Firefox usa las propiedades estándar.
+   No se mezclan: en Chrome, scrollbar-color anularía a los ::-webkit-scrollbar y volverían las flechas. */
+.scroll-cine::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+.scroll-cine::-webkit-scrollbar-button {
+    display: none;
+}
+.scroll-cine::-webkit-scrollbar-track,
+.scroll-cine::-webkit-scrollbar-corner {
+    background: transparent;
+}
+.scroll-cine::-webkit-scrollbar-thumb {
+    background: rgba(250, 204, 21, 0.35);
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
+}
+.scroll-cine::-webkit-scrollbar-thumb:hover {
+    background: rgba(250, 204, 21, 0.7);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+@supports (-moz-appearance: none) {
+    .scroll-cine {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(250, 204, 21, 0.4) transparent;
+    }
+}
