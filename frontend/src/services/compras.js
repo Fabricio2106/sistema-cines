@@ -1,5 +1,6 @@
 import { resolver, resolverOComo } from "./servicio";
 import { supabase } from "./supabase";
+import { avisarCompra } from "./tiempoReal";
 
 const aCompra = (fila) => ({
   id: fila.id,
@@ -40,6 +41,8 @@ export const crearCompra = async ({ pelicula, funcion, asientos, fecha }) => {
       p_fecha: fecha,
     })
   );
+  // Quienes miran esta función ven las butacas recién compradas sin recargar.
+  avisarCompra(pelicula.id, funcion.id, fecha);
   return aCompra(data);
 };
 

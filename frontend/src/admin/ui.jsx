@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 
-// Piezas visuales compartidas por las pantallas del panel (maqueta).
+// Piezas visuales compartidas por las pantallas del panel.
 
 export const entrada =
   "w-full rounded-xl border border-primary-800/70 bg-primary-950/70 px-4 py-2.5 text-white placeholder-surface-500 transition-colors focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400";

@@ -1,7 +1,7 @@
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import letras from "../assets/cinerama-letras.png";
 import { useAdmin } from "./AdminContext";
-import { ROLES } from "./datos";
+import { ROLES } from "./constantes";
 
 const MENU = [
   { a: "/admin", etiqueta: "Resumen", icono: "bi-speedometer2", roles: ["admin"], fin: true },
@@ -12,10 +12,13 @@ const MENU = [
 ];
 
 const AdminLayout = () => {
-  const { rol, cambiarRol, salir } = useAdmin();
+  const { cargando, rol, salir } = useAdmin();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
+  if (cargando) {
+    return <p role="status" className="flex min-h-screen items-center justify-center bg-primary-950 text-sm text-primary-100/60">Cargando…</p>;
+  }
   if (!rol) return <Navigate to="/admin/login" replace />;
 
   const opciones = MENU.filter((m) => m.roles.includes(rol));
@@ -60,30 +63,15 @@ const AdminLayout = () => {
         {/* Barra superior */}
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-primary-800/60 px-5 py-3 sm:px-8">
           <span className="inline-flex items-center gap-2 rounded-full bg-accent-400/15 px-3 py-1 text-xs font-bold text-accent-400">
-            <i className="bi bi-info-circle-fill" aria-hidden="true" />
-            Maqueta · datos de ejemplo
+            <i className="bi bi-person-badge-fill" aria-hidden="true" />
+            {ROLES[rol]}
           </span>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex rounded-full bg-primary-900/70 p-1" role="group" aria-label="Ver el panel como">
-              {Object.entries(ROLES).map(([clave, nombre]) => (
-                <button
-                  key={clave}
-                  type="button"
-                  aria-pressed={rol === clave}
-                  onClick={() => cambiarRol(clave)}
-                  className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
-                    rol === clave ? "bg-primary-600 text-white" : "text-primary-100/60 hover:text-white"
-                  }`}
-                >
-                  {nombre}
-                </button>
-              ))}
-            </div>
             <button
               type="button"
-              onClick={() => {
-                salir();
+              onClick={async () => {
+                await salir();
                 navigate("/admin/login");
               }}
               className="inline-flex items-center gap-2 rounded-full border border-primary-600/60 px-4 py-1.5 text-xs font-bold transition-colors hover:bg-primary-600"

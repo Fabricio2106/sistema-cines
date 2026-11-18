@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useCartelera } from "../context/CarteleraContext";
 import { useCompra } from "../context/CompraContext";
-import { crearCompra } from "../services/compras";
+import { METODOS, procesarPago } from "../services/pagos";
 import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
 import { esFechaValida, textoFecha } from "../utils/fechas";
 
@@ -42,6 +42,7 @@ const Resumen = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [metodoId, setMetodoId] = useState(METODOS[0].id);
 
   const { buscarPelicula, salas, cargando } = useCartelera();
   const pelicula = buscarPelicula(eleccion?.peliculaId);
@@ -64,7 +65,7 @@ const Resumen = () => {
     setError("");
     setEnviando(true);
     try {
-      const compra = await crearCompra({ pelicula, funcion, asientos, fecha });
+      const compra = await procesarPago(metodoId, { pelicula, funcion, asientos, fecha });
       navigate(`/ticket/${compra.id}`, { replace: true });
       limpiar();
       toast.success("¡Compra realizada! Aquí está tu ticket");
@@ -127,9 +128,29 @@ const Resumen = () => {
           </div>
         </article>
 
+        {METODOS.length > 1 && (
+          <fieldset className="mt-4">
+            <legend className="mb-2 text-sm font-semibold">Método de pago</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {METODOS.map((m) => (
+                <label
+                  key={m.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-colors ${
+                    metodoId === m.id ? "border-accent-400 bg-accent-400/10" : "border-primary-700/50 hover:bg-primary-900/50"
+                  }`}
+                >
+                  <input type="radio" name="metodo" value={m.id} checked={metodoId === m.id} onChange={() => setMetodoId(m.id)} className="accent-yellow-400" />
+                  <i className={`bi ${m.icono} text-accent-400`} aria-hidden="true" />
+                  {m.nombre}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
+
         <p className="mt-4 flex items-start gap-2 rounded-xl border border-primary-700/40 bg-primary-900/30 px-4 py-3 text-xs text-primary-100/60">
           <i className="bi bi-info-circle-fill mt-0.5 text-accent-400" aria-hidden="true" />
-          Todavía no se cobra ningún pago: la compra solo reserva tus butacas.
+          {METODOS.find((m) => m.id === metodoId).descripcion}
         </p>
 
         {error && (

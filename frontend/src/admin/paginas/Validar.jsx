@@ -9,7 +9,6 @@ const ESTADOS = {
   noExiste: { icono: "bi-x-circle-fill", color: "text-red-400", borde: "border-red-500/40 bg-red-500/10", titulo: "No encontramos esa entrada" },
 };
 
-// MAQUETA: valida contra una lista de ejemplo. Pruebas: A1B2C3D4 (válida), F7G8H9J2 (usada), cualquier otro (no existe).
 const Validar = () => {
   const [codigo, setCodigo] = useState("");
   const [resultado, setResultado] = useState(null);

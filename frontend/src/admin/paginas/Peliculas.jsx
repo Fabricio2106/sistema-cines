@@ -1,12 +1,11 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { GENEROS_PELICULA } from "../datos";
+import { GENEROS_PELICULA } from "../constantes";
 import { usePeliculas } from "../hooks";
 import { BotonIcono, BotonPrimario, Campo, EstadoCarga, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
 
 const VACIA = { id: "", titulo: "", genero: "Acción", clasificacion: "", estreno: "", trailerUrl: "", poster: "", activa: true };
 
-// MAQUETA: los cambios viven solo en memoria y se pierden al recargar la página.
 const Peliculas = () => {
   const { datos: lista, cargando, error, crear, actualizar } = usePeliculas();
   const [busqueda, setBusqueda] = useState("");
@@ -28,7 +27,7 @@ const Peliculas = () => {
     try {
       if (nueva) await crear(editando);
       else await actualizar(editando.id, editando);
-      toast.success(nueva ? "Película agregada (maqueta)" : "Cambios guardados (maqueta)");
+      toast.success(nueva ? "Película agregada" : "Cambios guardados");
       setEditando(null);
     } catch (err) {
       toast.error(err.message);
@@ -90,7 +89,7 @@ const Peliculas = () => {
               </td>
               <td className="px-5 py-3">
                 <div className="flex gap-2">
-                  <BotonIcono icono="bi-pencil-fill" etiqueta={`Editar ${p.titulo}`} onClick={() => setEditando({ ...p, trailerUrl: "" })} />
+                  <BotonIcono icono="bi-pencil-fill" etiqueta={`Editar ${p.titulo}`} onClick={() => setEditando({ ...p })} />
                   <BotonIcono
                     icono={p.activa ? "bi-eye-slash-fill" : "bi-eye-fill"}
                     etiqueta={p.activa ? `Ocultar ${p.titulo}` : `Mostrar ${p.titulo}`}
@@ -108,7 +107,7 @@ const Peliculas = () => {
         abierto={Boolean(editando)}
         onCerrar={() => setEditando(null)}
         titulo={nueva ? "Nueva película" : "Editar película"}
-        descripcion="Maqueta: los datos no se guardan en la base de datos."
+        descripcion="Los cambios se ven en la cartelera en cuanto los guardes."
       >
         {editando && (
           <form onSubmit={guardar} className="space-y-4">

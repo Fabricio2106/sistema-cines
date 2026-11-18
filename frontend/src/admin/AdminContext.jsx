@@ -1,37 +1,49 @@
-import { createContext, useContext, useState } from "react";
-import { ROLES } from "./datos";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { alCambiarSesion, ingresar as iniciarSesion, salir as cerrarSesion } from "../services/auth";
+import { rolDePersonal } from "./repositorios/personal";
 
-// MAQUETA: la "sesión" del panel es solo un rol guardado en el navegador. No hay cuentas ni permisos reales.
+// El panel usa la misma sesión de Supabase que el sitio. El rol sale de la tabla `personal`
+// en el servidor: si la cuenta no está ahí, no entra, y aunque alguien editara este archivo
+// en su navegador, las reglas de la base de datos (admin.sql) rechazarían sus consultas.
 const AdminContext = createContext(null);
-const CLAVE = "maqueta-admin-rol";
-
-const leerRol = () => {
-  try {
-    const rol = sessionStorage.getItem(CLAVE);
-    return rol in ROLES ? rol : null;
-  } catch {
-    return null;
-  }
-};
 
 export const AdminProvider = ({ children }) => {
-  const [rol, setRol] = useState(leerRol);
+  const [estado, setEstado] = useState({ cargando: true, rol: null });
 
-  const guardar = (nuevo) => {
+  const refrescar = useCallback(async () => {
     try {
-      if (nuevo) sessionStorage.setItem(CLAVE, nuevo);
-      else sessionStorage.removeItem(CLAVE);
+      setEstado({ cargando: false, rol: await rolDePersonal() });
     } catch {
-      /* sin almacenamiento: la sesión dura solo mientras la página siga abierta */
+      setEstado({ cargando: false, rol: null });
     }
-    setRol(nuevo);
+  }, []);
+
+  useEffect(() => {
+    return alCambiarSesion((usuario) => {
+      if (!usuario) return setEstado({ cargando: false, rol: null });
+      // Supabase no admite llamar a su API dentro de este aviso: se difiere un instante.
+      setTimeout(refrescar, 0);
+    });
+  }, [refrescar]);
+
+  // Lanza un error si las credenciales fallan o si la cuenta no es del personal.
+  const ingresar = async (credenciales) => {
+    await iniciarSesion(credenciales);
+    const rol = await rolDePersonal();
+    if (!rol) {
+      await cerrarSesion();
+      throw new Error("Esta cuenta no tiene acceso al panel");
+    }
+    setEstado({ cargando: false, rol });
+    return rol;
   };
 
-  return (
-    <AdminContext.Provider value={{ rol, ingresar: guardar, cambiarRol: guardar, salir: () => guardar(null) }}>
-      {children}
-    </AdminContext.Provider>
-  );
+  const salir = async () => {
+    await cerrarSesion();
+    setEstado({ cargando: false, rol: null });
+  };
+
+  return <AdminContext.Provider value={{ ...estado, ingresar, salir }}>{children}</AdminContext.Provider>;
 };
 
 export const useAdmin = () => useContext(AdminContext);

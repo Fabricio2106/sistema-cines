@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import letras from "../assets/cinerama-letras.png";
 import { useAdmin } from "./AdminContext";
@@ -6,14 +7,27 @@ const campo =
   "w-full rounded-xl border border-primary-800/70 bg-primary-950/70 py-3 pl-11 pr-4 text-white placeholder-surface-500 transition-colors focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400";
 
 const AdminLogin = () => {
-  const { rol, ingresar } = useAdmin();
+  const { cargando, rol, ingresar } = useAdmin();
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
+  if (cargando) return null;
   if (rol) return <Navigate to={rol === "admin" ? "/admin" : "/admin/ventas"} replace />;
 
-  const entrar = (nuevo) => {
-    ingresar(nuevo);
-    navigate(nuevo === "admin" ? "/admin" : "/admin/ventas", { replace: true });
+  const entrar = async (e) => {
+    e.preventDefault();
+    setError("");
+    setEnviando(true);
+    try {
+      const nuevo = await ingresar({ email, password });
+      navigate(nuevo === "admin" ? "/admin" : "/admin/ventas", { replace: true });
+    } catch (err) {
+      setError(err.message);
+      setEnviando(false);
+    }
   };
 
   return (
@@ -32,57 +46,50 @@ const AdminLogin = () => {
           <h1 className="mt-4 text-2xl font-bold">Panel de administración</h1>
           <p className="mb-6 mt-1 text-sm text-primary-100/60">Ingresa con tu cuenta del personal para gestionar el cine.</p>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              entrar("admin");
-            }}
-            className="flex flex-col gap-4"
-          >
+          <form onSubmit={entrar} className="flex flex-col gap-4">
             <label className="block">
               <span className="text-sm font-medium text-primary-100/60">Correo del personal</span>
               <div className="relative mt-1.5">
                 <i className="bi bi-envelope-fill pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" aria-hidden="true" />
-                <input type="email" placeholder="usuario@cinerama.com.pe" className={campo} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="usuario@cinerama.com.pe"
+                  autoComplete="username"
+                  required
+                  className={campo}
+                />
               </div>
             </label>
             <label className="block">
               <span className="text-sm font-medium text-primary-100/60">Contraseña</span>
               <div className="relative mt-1.5">
                 <i className="bi bi-lock-fill pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" aria-hidden="true" />
-                <input type="password" placeholder="••••••••" className={campo} />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                  className={campo}
+                />
               </div>
             </label>
+            {error && (
+              <p role="alert" className="rounded-lg border border-red-800 bg-red-950/60 px-4 py-3 text-sm text-red-300">
+                {error}
+              </p>
+            )}
             <button
               type="submit"
-              className="w-full rounded-full bg-accent-400 py-3 font-bold text-black shadow-lg shadow-accent-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-300"
+              disabled={enviando}
+              className="w-full rounded-full bg-accent-400 py-3 font-bold text-black shadow-lg shadow-accent-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-300 disabled:translate-y-0 disabled:opacity-50"
             >
-              Ingresar al panel
+              {enviando ? "Ingresando…" : "Ingresar al panel"}
             </button>
           </form>
-
-          <div className="mt-6 rounded-2xl border border-dashed border-primary-600/50 bg-black/20 p-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-primary-100/60">Maqueta · entrar como</p>
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => entrar("admin")}
-                className="rounded-xl border border-primary-600/60 px-3 py-2 text-sm font-semibold transition-colors hover:bg-primary-600"
-              >
-                Administrador
-              </button>
-              <button
-                type="button"
-                onClick={() => entrar("boleteria")}
-                className="rounded-xl border border-primary-600/60 px-3 py-2 text-sm font-semibold transition-colors hover:bg-primary-600"
-              >
-                Boletería
-              </button>
-            </div>
-            <p className="mt-3 text-xs text-primary-100/50">
-              Esta pantalla es una maqueta: no valida cuentas y todos los datos del panel son de ejemplo.
-            </p>
-          </div>
         </div>
 
         <Link to="/" className="mt-6 block text-center text-sm text-primary-100/60 transition-colors hover:text-white">

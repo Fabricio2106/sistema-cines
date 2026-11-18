@@ -35,6 +35,13 @@ Se ejecutan en este orden:
 2. `supabase/cartelera.sql`: tablas `salas`, `peliculas` y `funciones` con su lectura
    pública, datos iniciales de ejemplo y la función `crear_compra`, que calcula el precio
    en el servidor.
+3. Cambios posteriores, en este orden: `fecha-estreno.sql`, `trailers.sql`, `fechas-funciones.sql`.
+4. `supabase/admin.sql`: panel de administración. Crea la tabla `personal` (quién entra y con
+   qué rol), da permiso de editar la cartelera solo al administrador y agrega las consultas del
+   panel (ventas, validar entradas). Después de ejecutarlo, da acceso a cada persona con el
+   `insert` que está al final del archivo.
+5. `supabase/realtime.sql` (opcional): activa Realtime en la cartelera para que la web se
+   actualice sola cuando cambian películas, funciones o salas.
 
 ## Cómo aplicarlo
 
