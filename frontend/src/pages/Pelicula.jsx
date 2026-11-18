@@ -1,7 +1,7 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import Calendario from "../components/Calendario/Calendario";
 import TrailerDialog from "../components/TrailerDialog/TrailerDialog";
-import { esFechaValida, funcionYaEmpezo, hoyLima, textoFecha } from "../utils/fechas";
+import { esFechaValida, funcionYaEmpezo, hoyLima, textoFecha, ultimaFecha } from "../utils/fechas";
 import { esEstreno } from "../utils/estreno";
 import { useCartelera } from "../context/CarteleraContext";
 import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
@@ -101,7 +101,7 @@ const Pelicula = () => {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-[auto_1fr]">
             <div className="w-full rounded-2xl border border-primary-700/40 bg-primary-900/30 p-4 md:w-fit">
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-primary-100/50">1 · Fecha</p>
-              <Calendario valor={fecha} onCambio={(f) => setParams({ fecha: f }, { replace: true, preventScrollReset: true })} />
+              <Calendario valor={fecha} desde={hoyLima()} hasta={ultimaFecha()} onCambio={(f) => setParams({ fecha: f }, { replace: true, preventScrollReset: true })} />
             </div>
 
             <div className="rounded-2xl border border-primary-700/40 bg-primary-900/30 p-5">
