@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { soles } from "../datos";
+import { soles } from "../constantes";
 import { useCompras, useVentasSemana } from "../hooks";
 import { EstadoCarga, Indicador, Insignia, Tabla, TituloPagina, Tarjeta } from "../ui";
 
@@ -12,7 +12,7 @@ const Ventas = () => {
 
   return (
     <>
-      <TituloPagina titulo="Ventas" descripcion="Compras de los clientes en la web. Datos de ejemplo de los últimos 7 días.">
+      <TituloPagina titulo="Ventas" descripcion="Compras de los clientes en la web: ventas de los últimos 7 días y las compras más recientes.">
         <button
           type="button"
           onClick={() => toast("La exportación estará disponible al conectar el panel")}

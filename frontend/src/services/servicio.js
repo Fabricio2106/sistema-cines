@@ -20,10 +20,18 @@ export class ErrorServicio extends Error {
   }
 }
 
+// Errores de Postgres por código: 23505 = valor repetido, 42501 = sin permiso (RLS o función).
+const MENSAJES_POR_CODIGO = {
+  23505: "Ya existe un registro igual",
+  42501: "No tienes permiso para hacer esto",
+  PGRST202: "Falta una configuración en la base de datos: ejecuta backend/supabase/admin.sql en Supabase",
+};
+
 const traducir = (error, mensajeFijo) => {
   if (mensajeFijo) return mensajeFijo;
   const texto = error?.message ?? "";
   if (esErrorDeRed(texto)) return SIN_CONEXION;
+  if (MENSAJES_POR_CODIGO[error?.code]) return MENSAJES_POR_CODIGO[error.code];
   return MENSAJES[texto] ?? (texto || "Ocurrió un error inesperado");
 };
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { soles } from "../datos";
+import { soles } from "../constantes";
 import { useFunciones, usePeliculas, useSalas } from "../hooks";
 import { BotonIcono, BotonPrimario, Campo, EstadoCarga, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
 
@@ -15,7 +15,7 @@ const Funciones = () => {
     e.preventDefault();
     try {
       await crear({ ...nueva, activa: true });
-      toast.success("Función agregada (maqueta)");
+      toast.success("Función agregada");
       setNueva(null);
     } catch (err) {
       toast.error(err.message);
@@ -36,7 +36,7 @@ const Funciones = () => {
     <>
       <TituloPagina titulo="Funciones y salas" descripcion="Horarios, precios y distribución de las salas.">
         {tab === "funciones" && (
-          <BotonPrimario onClick={() => setNueva({ pelicula: peliculas[0]?.titulo ?? "", hora: "18:00", sala: salas[0]?.id ?? 1, precio: 15 })}>
+          <BotonPrimario onClick={() => setNueva({ peliculaId: peliculas[0]?.id ?? "", hora: "18:00", sala: salas[0]?.id ?? 1, precio: 15 })}>
             <i className="bi bi-plus-lg" aria-hidden="true" />
             Nueva función
           </BotonPrimario>
@@ -121,13 +121,13 @@ const Funciones = () => {
         </div>
       )}
 
-      <Modal abierto={Boolean(nueva)} onCerrar={() => setNueva(null)} titulo="Nueva función" descripcion="Maqueta: la función no se guarda en la base de datos.">
+      <Modal abierto={Boolean(nueva)} onCerrar={() => setNueva(null)} titulo="Nueva función" descripcion="Aparece en la cartelera en cuanto la guardes.">
         {nueva && (
           <form onSubmit={guardar} className="space-y-4">
             <Campo etiqueta="Película">
-              <select name="pelicula" value={nueva.pelicula} onChange={cambiar} className={entrada}>
+              <select name="peliculaId" value={nueva.peliculaId} onChange={cambiar} className={entrada}>
                 {peliculas.map((p) => (
-                  <option key={p.id} className="text-black">
+                  <option key={p.id} value={p.id} className="text-black">
                     {p.titulo}
                   </option>
                 ))}

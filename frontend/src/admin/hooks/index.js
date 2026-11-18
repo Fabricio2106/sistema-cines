@@ -16,3 +16,4 @@ export const useCompras = () => ({
 
 export const useVentasSemana = () => useConsulta(estadisticasRepo.ventasSemana);
 export const useTopPeliculas = () => useConsulta(estadisticasRepo.topPeliculas);
+export const useOcupacionHoy = () => useConsulta(estadisticasRepo.ocupacionHoy);

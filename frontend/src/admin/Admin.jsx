@@ -8,7 +8,7 @@ import Funciones from "./paginas/Funciones";
 import Ventas from "./paginas/Ventas";
 import Validar from "./paginas/Validar";
 
-// MAQUETA del panel de administración: pantallas con datos de ejemplo, sin conexión a Supabase.
+// Panel de administración. Solo entra el personal registrado en la tabla `personal` (backend/supabase/admin.sql).
 const Admin = () => (
   <AdminProvider>
     <Routes>
