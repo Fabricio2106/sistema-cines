@@ -1,6 +1,6 @@
 import { soles } from "../constantes";
 import { useFunciones, useOcupacionHoy, usePeliculas, useSalas, useTopPeliculas, useVentasSemana } from "../hooks";
-import { EstadoCarga, Indicador, Tabla, TituloPagina, Tarjeta } from "../ui";
+import { EstadoCarga, Indicador, TituloPagina, Tarjeta } from "../ui";
 import { funcionYaEmpezo, hoyLima } from "../../utils/fechas";
 
 // "+12% vs. ayer"; sin comparación si ayer no hubo ventas.
@@ -56,25 +56,27 @@ const Resumen = () => {
     .slice(0, 5);
 
   return (
-    <>
-      <TituloPagina titulo="Resumen" descripcion="Cómo va el cine hoy y en los últimos 7 días." />
+    // En pantallas grandes (xl) todo el resumen cabe en la pantalla sin desplazarse; en pantallas
+    // chicas las tarjetas se apilan y la página se desplaza.
+    <div className="flex flex-col gap-4 xl:h-full xl:gap-5">
+      <TituloPagina compacto titulo="Resumen" descripcion="Cómo va el cine hoy y en los últimos 7 días." />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5">
         <Indicador icono="bi-ticket-perforated-fill" valor={hoy.entradas} etiqueta="Entradas hoy" detalle={contraAyer(hoy.entradas, ayer?.entradas)} />
         <Indicador icono="bi-cash-coin" valor={soles(hoy.ingresos)} etiqueta="Ingresos hoy" detalle={contraAyer(hoy.ingresos, ayer?.ingresos)} />
         <Indicador icono="bi-people-fill" valor={ocupacionPromedio === null ? "—" : `${ocupacionPromedio}%`} etiqueta="Ocupación promedio de hoy" />
         <Indicador icono="bi-film" valor={enCartelera} etiqueta="Películas en cartelera" />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.6fr_1fr]">
-        <Tarjeta className="p-4 sm:p-6">
-          <div className="mb-6 flex items-start justify-between gap-4">
+      <div className="grid grid-cols-1 gap-4 xl:min-h-0 xl:flex-1 xl:grid-cols-[1.5fr_1fr_1.1fr] xl:gap-5">
+        <Tarjeta className="flex min-h-0 flex-col p-4 sm:p-6">
+          <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold">Ingresos de la semana</h2>
               <p className="text-sm text-primary-100/60">Total: {soles(totalSemana)}</p>
             </div>
           </div>
-          <ul className="flex h-56 items-end gap-1.5 sm:gap-3" aria-label="Ingresos por día">
+          <ul className="flex h-56 items-end gap-1.5 sm:gap-3 xl:h-auto xl:min-h-0 xl:flex-1" aria-label="Ingresos por día">
             {semana.map((d, i) => (
               <li key={`${d.dia}-${i}`} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
                 <span className="text-[10px] font-semibold text-primary-100/70 sm:text-xs">
@@ -93,14 +95,14 @@ const Resumen = () => {
           </ul>
         </Tarjeta>
 
-        <Tarjeta className="p-6">
+        <Tarjeta className="flex min-h-0 flex-col p-5">
           <h2 className="mb-4 text-lg font-bold">Películas más vendidas</h2>
           {top.datos.length === 0 ? (
             <p className="text-sm text-primary-100/60">Todavía no hay ventas en los últimos 7 días.</p>
           ) : (
-            <ol className="space-y-4">
+            <ol className="min-h-0 space-y-3 xl:overflow-y-auto">
               {top.datos.map((p, i) => (
-                <li key={p.titulo} className="flex items-center gap-4">
+                <li key={p.titulo} className="flex items-center gap-3">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-600/30 text-sm font-bold text-accent-400">
                     {i + 1}
                   </span>
@@ -114,47 +116,39 @@ const Resumen = () => {
             </ol>
           )}
         </Tarjeta>
-      </div>
 
-      <Tarjeta className="mt-6 overflow-hidden">
-        <div className="px-6 pt-6">
-          <h2 className="text-lg font-bold">Próximas funciones de hoy</h2>
-        </div>
-        <div className="mt-3">
-          <Tabla columnas={["Película", "Hora", "Sala", "Ocupación"]}>
-            {proximas.map((f) => {
-              const sala = salas.datos.find((s) => s.id === f.sala);
-              const capacidad = capacidadDe(f);
-              const ocupadas = vendidas(f);
-              return (
-                <tr key={f.id}>
-                  <td className="px-5 py-3 font-semibold">{f.pelicula}</td>
-                  <td className="px-5 py-3">{f.hora}</td>
-                  <td className="px-5 py-3">{sala?.nombre ?? `Sala ${f.sala}`}</td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-2 w-28 overflow-hidden rounded-full bg-primary-900">
+        <Tarjeta className="flex min-h-0 flex-col p-5">
+          <h2 className="mb-4 text-lg font-bold">Próximas funciones de hoy</h2>
+          {proximas.length === 0 ? (
+            <p className="text-sm text-primary-100/60">No quedan funciones por empezar hoy.</p>
+          ) : (
+            <ul className="min-h-0 space-y-3 xl:overflow-y-auto">
+              {proximas.map((f) => {
+                const sala = salas.datos.find((s) => s.id === f.sala);
+                const capacidad = capacidadDe(f);
+                const ocupadas = vendidas(f);
+                return (
+                  <li key={f.id}>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="truncate font-semibold">{f.pelicula}</p>
+                      <span className="shrink-0 text-sm font-bold text-accent-400">{f.hora}</span>
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-3">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-primary-900">
                         <div className="h-full rounded-full bg-accent-400" style={{ width: `${capacidad ? (ocupadas / capacidad) * 100 : 0}%` }} />
                       </div>
-                      <span className="text-xs text-primary-100/70">
-                        {ocupadas}/{capacidad}
+                      <span className="shrink-0 text-xs text-primary-100/70">
+                        {sala?.nombre ?? `Sala ${f.sala}`} · {ocupadas}/{capacidad}
                       </span>
                     </div>
-                  </td>
-                </tr>
-              );
-            })}
-            {proximas.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-5 py-6 text-center text-primary-100/60">
-                  No quedan funciones por empezar hoy.
-                </td>
-              </tr>
-            )}
-          </Tabla>
-        </div>
-      </Tarjeta>
-    </>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Tarjeta>
+      </div>
+    </div>
   );
 };
 

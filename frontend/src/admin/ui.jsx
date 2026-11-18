@@ -5,8 +5,9 @@ import * as Dialog from "@radix-ui/react-dialog";
 export const entrada =
   "w-full rounded-xl border border-primary-800/70 bg-primary-950/70 px-4 py-2.5 text-white placeholder-surface-500 transition-colors focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400";
 
-export const TituloPagina = ({ titulo, descripcion, children }) => (
-  <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+// `compacto` quita el margen inferior para que la página lo controle con su propio espaciado.
+export const TituloPagina = ({ titulo, descripcion, children, compacto = false }) => (
+  <div className={`${compacto ? "" : "mb-8"} flex flex-wrap items-end justify-between gap-4`}>
     <div>
       <h1 className="text-2xl font-bold sm:text-3xl">{titulo}</h1>
       {descripcion && <p className="mt-1 text-sm text-primary-100/60">{descripcion}</p>}
