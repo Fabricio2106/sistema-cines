@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useCartelera } from "../context/CarteleraContext";
-import { asientosOcupados } from "../services/compras";
+import { useCompra } from "../context/CompraContext";
+import { useSeleccionButacas } from "../hooks/useSeleccionButacas";
 import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
 import { esFechaValida, funcionYaEmpezo, hoyLima, textoFecha } from "../utils/fechas";
 
@@ -30,21 +30,18 @@ const Butacas = () => {
   const pelicula = buscarPelicula(id);
   const funcion = pelicula?.funciones.find((f) => f.id === funcionId);
   const sala = funcion && salas[funcion.sala];
-  const [seleccion, setSeleccion] = useState([]);
-  const [ocupadas, setOcupadas] = useState([]);
+  const { compra, elegirButacas } = useCompra();
 
-  useEffect(() => {
-    let activo = true;
-    asientosOcupados(id, funcionId, fecha).then((lista) => {
-      if (!activo) return;
-      setOcupadas(lista);
-      // Si alguien compró una butaca que tenías elegida, se quita de tu selección
-      setSeleccion((prev) => prev.filter((a) => !lista.includes(a)));
-    });
-    return () => {
-      activo = false;
-    };
-  }, [id, funcionId, fecha]);
+  // Al volver desde el resumen ("Cambiar butacas") se recuperan las butacas ya elegidas.
+  const mismaFuncion = compra?.peliculaId === id && compra?.funcionId === funcionId && compra?.fecha === fecha;
+  const { seleccion, ocupadas, alternar } = useSeleccionButacas({
+    peliculaId: id,
+    funcionId,
+    fecha,
+    maximo: MAX_BUTACAS,
+    inicial: mismaFuncion ? compra.asientos : [],
+    alLlegarAlLimite: (max) => toast.error(`Puedes elegir hasta ${max} butacas por compra`),
+  });
 
   if (cargando) {
     return <PaginaCargando />;
@@ -65,13 +62,9 @@ const Butacas = () => {
   const mitad = Math.ceil(sala.asientosPorFila / 2);
   const libres = sala.filas.length * sala.asientosPorFila - ocupadas.length;
 
-  const alternar = (asiento) => {
-    if (ocupadas.includes(asiento)) return;
-    if (!seleccion.includes(asiento) && seleccion.length >= MAX_BUTACAS) {
-      toast.error(`Puedes elegir hasta ${MAX_BUTACAS} butacas por compra`);
-      return;
-    }
-    setSeleccion((prev) => (prev.includes(asiento) ? prev.filter((a) => a !== asiento) : [...prev, asiento]));
+  const continuar = () => {
+    elegirButacas({ peliculaId: pelicula.id, funcionId: funcion.id, asientos: seleccion, fecha });
+    navigate("/resumen");
   };
 
   const butaca = (fila, numero) => {
@@ -196,11 +189,7 @@ const Butacas = () => {
           <button
             type="button"
             disabled={seleccion.length === 0}
-            onClick={() =>
-              navigate("/resumen", {
-                state: { peliculaId: pelicula.id, funcionId: funcion.id, asientos: seleccion, fecha },
-              })
-            }
+            onClick={continuar}
             className="rounded-full bg-accent-400 px-8 py-3 font-bold text-black shadow-lg shadow-accent-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-300 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Continuar
