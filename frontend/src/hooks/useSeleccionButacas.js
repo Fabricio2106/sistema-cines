@@ -1,23 +1,51 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { asientosOcupados } from "../services/compras";
+import { suscribirOcupacion } from "../services/tiempoReal";
 
 // Estado de la elección de butacas de una función: cuáles están ocupadas (según el
-// servidor), cuáles eligió el cliente y el límite por compra.
-// `alLlegarAlLimite` avisa a la pantalla (por ejemplo con un toast) sin acoplar el hook a la interfaz.
-export const useSeleccionButacas = ({ peliculaId, funcionId, fecha, maximo, inicial = [], alLlegarAlLimite }) => {
+// servidor, y en vivo cuando alguien más compra), cuáles eligió el cliente y el límite por compra.
+// `alLlegarAlLimite` y `alPerderButacas` avisan a la pantalla (por ejemplo con un toast)
+// sin acoplar el hook a la interfaz.
+export const useSeleccionButacas = ({
+  peliculaId,
+  funcionId,
+  fecha,
+  maximo,
+  inicial = [],
+  alLlegarAlLimite,
+  alPerderButacas,
+}) => {
   const [seleccion, setSeleccion] = useState(inicial);
   const [ocupadas, setOcupadas] = useState([]);
 
+  // Referencias para que la suscripción lea siempre la selección y el aviso más recientes.
+  const seleccionRef = useRef(seleccion);
+  const avisoRef = useRef(alPerderButacas);
+  useEffect(() => {
+    seleccionRef.current = seleccion;
+    avisoRef.current = alPerderButacas;
+  });
+
   useEffect(() => {
     let activo = true;
-    asientosOcupados(peliculaId, funcionId, fecha).then((lista) => {
-      if (!activo) return;
-      setOcupadas(lista);
-      // Si alguien compró una butaca que tenías elegida, se quita de tu selección
-      setSeleccion((prev) => prev.filter((a) => !lista.includes(a)));
-    });
+
+    const cargar = () =>
+      asientosOcupados(peliculaId, funcionId, fecha).then((lista) => {
+        if (!activo) return;
+        setOcupadas(lista);
+        // Si alguien compró una butaca que tenías elegida, se quita de tu selección
+        const perdidas = seleccionRef.current.filter((a) => lista.includes(a));
+        if (perdidas.length > 0) {
+          setSeleccion((prev) => prev.filter((a) => !lista.includes(a)));
+          avisoRef.current?.(perdidas);
+        }
+      });
+
+    cargar();
+    const dejarDeEscuchar = suscribirOcupacion(peliculaId, funcionId, fecha, cargar);
     return () => {
       activo = false;
+      dejarDeEscuchar();
     };
   }, [peliculaId, funcionId, fecha]);
 

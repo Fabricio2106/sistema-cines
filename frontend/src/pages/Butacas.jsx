@@ -41,6 +41,8 @@ const Butacas = () => {
     maximo: MAX_BUTACAS,
     inicial: mismaFuncion ? compra.asientos : [],
     alLlegarAlLimite: (max) => toast.error(`Puedes elegir hasta ${max} butacas por compra`),
+    alPerderButacas: (perdidas) =>
+      toast.error(`Alguien más tomó ${perdidas.length === 1 ? "la butaca" : "las butacas"} ${perdidas.join(", ")}. Elige otra.`),
   });
 
   if (cargando) {
