@@ -1,32 +1,38 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { GENEROS_PELICULA, PELICULAS } from "../datos";
-import { BotonIcono, BotonPrimario, Campo, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
+import { GENEROS_PELICULA } from "../datos";
+import { usePeliculas } from "../hooks";
+import { BotonIcono, BotonPrimario, Campo, EstadoCarga, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
 
 const VACIA = { id: "", titulo: "", genero: "Acción", clasificacion: "", estreno: "", trailerUrl: "", poster: "", activa: true };
 
 // MAQUETA: los cambios viven solo en memoria y se pierden al recargar la página.
 const Peliculas = () => {
-  const [lista, setLista] = useState(PELICULAS);
+  const { datos: lista, cargando, error, crear, actualizar } = usePeliculas();
   const [busqueda, setBusqueda] = useState("");
   const [editando, setEditando] = useState(null); // null = cerrado; objeto = abierto
   const nueva = editando && !editando.id;
 
   const visibles = lista.filter((p) => p.titulo.toLowerCase().includes(busqueda.trim().toLowerCase()));
 
-  const alternar = (id) => {
-    setLista((prev) => prev.map((p) => (p.id === id ? { ...p, activa: !p.activa } : p)));
+  const alternar = async (p) => {
+    try {
+      await actualizar(p.id, { activa: !p.activa });
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
-  const guardar = (e) => {
+  const guardar = async (e) => {
     e.preventDefault();
-    if (nueva) {
-      setLista((prev) => [{ ...editando, id: editando.titulo.toLowerCase().replace(/\s+/g, "-"), trailer: Boolean(editando.trailerUrl) }, ...prev]);
-    } else {
-      setLista((prev) => prev.map((p) => (p.id === editando.id ? { ...p, ...editando, trailer: Boolean(editando.trailerUrl) || p.trailer } : p)));
+    try {
+      if (nueva) await crear(editando);
+      else await actualizar(editando.id, editando);
+      toast.success(nueva ? "Película agregada (maqueta)" : "Cambios guardados (maqueta)");
+      setEditando(null);
+    } catch (err) {
+      toast.error(err.message);
     }
-    toast.success(nueva ? "Película agregada (maqueta)" : "Cambios guardados (maqueta)");
-    setEditando(null);
   };
 
   const cambiar = (e) => setEditando({ ...editando, [e.target.name]: e.target.value });
@@ -88,13 +94,14 @@ const Peliculas = () => {
                   <BotonIcono
                     icono={p.activa ? "bi-eye-slash-fill" : "bi-eye-fill"}
                     etiqueta={p.activa ? `Ocultar ${p.titulo}` : `Mostrar ${p.titulo}`}
-                    onClick={() => alternar(p.id)}
+                    onClick={() => alternar(p)}
                   />
                 </div>
               </td>
             </tr>
           ))}
         </Tabla>
+        <EstadoCarga cargando={cargando} error={error} />
       </Tarjeta>
 
       <Modal

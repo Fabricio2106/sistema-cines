@@ -1,3 +1,4 @@
+import { resolver, resolverOComo } from "./servicio";
 import { supabase } from "./supabase";
 
 const aCompra = (fila) => ({
@@ -17,37 +18,38 @@ const aCompra = (fila) => ({
 // Si la consulta falla, se devuelve lista vacía: el servidor igual rechaza
 // la compra de una butaca ocupada.
 export const asientosOcupados = async (peliculaId, funcionId, fecha) => {
-  const { data } = await supabase.rpc("asientos_ocupados", {
-    p_pelicula_id: peliculaId,
-    p_funcion_id: funcionId,
-    p_fecha: fecha,
-  });
-  return data ?? [];
+  const lista = await resolverOComo(
+    supabase.rpc("asientos_ocupados", {
+      p_pelicula_id: peliculaId,
+      p_funcion_id: funcionId,
+      p_fecha: fecha,
+    }),
+    []
+  );
+  return lista ?? [];
 };
 
 // El servidor toma título, hora, sala y precio de la cartelera; el navegador
 // solo dice qué función, qué butacas y para qué fecha.
 export const crearCompra = async ({ pelicula, funcion, asientos, fecha }) => {
-  const { data, error } = await supabase.rpc("crear_compra", {
-    p_pelicula_id: pelicula.id,
-    p_funcion_id: funcion.id,
-    p_asientos: asientos,
-    p_fecha: fecha,
-  });
-  if (error) throw new Error(error.message);
+  const data = await resolver(
+    supabase.rpc("crear_compra", {
+      p_pelicula_id: pelicula.id,
+      p_funcion_id: funcion.id,
+      p_asientos: asientos,
+      p_fecha: fecha,
+    })
+  );
   return aCompra(data);
 };
 
+// Si la consulta falla o no existe, devuelve null (la pantalla muestra "no encontrada").
 export const buscarCompra = async (id) => {
-  const { data } = await supabase.from("compras").select("*").eq("id", id).maybeSingle();
+  const data = await resolverOComo(supabase.from("compras").select("*").eq("id", id).maybeSingle(), null);
   return data ? aCompra(data) : null;
 };
 
 export const comprasDeUsuario = async () => {
-  const { data, error } = await supabase
-    .from("compras")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) throw new Error(error.message);
+  const data = await resolver(supabase.from("compras").select("*").order("created_at", { ascending: false }));
   return data.map(aCompra);
 };

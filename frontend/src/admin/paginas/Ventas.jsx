@@ -1,10 +1,14 @@
 import toast from "react-hot-toast";
-import { COMPRAS, VENTAS_SEMANA, soles } from "../datos";
-import { Indicador, Insignia, Tabla, TituloPagina, Tarjeta } from "../ui";
+import { soles } from "../datos";
+import { useCompras, useVentasSemana } from "../hooks";
+import { EstadoCarga, Indicador, Insignia, Tabla, TituloPagina, Tarjeta } from "../ui";
 
 const Ventas = () => {
-  const entradas = VENTAS_SEMANA.reduce((s, d) => s + d.entradas, 0);
-  const ingresos = VENTAS_SEMANA.reduce((s, d) => s + d.ingresos, 0);
+  const compras = useCompras();
+  const ventas = useVentasSemana();
+  const semana = ventas.datos ?? [];
+  const entradas = semana.reduce((s, d) => s + d.entradas, 0);
+  const ingresos = semana.reduce((s, d) => s + d.ingresos, 0);
 
   return (
     <>
@@ -22,7 +26,7 @@ const Ventas = () => {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Indicador icono="bi-ticket-perforated-fill" valor={entradas} etiqueta="Entradas vendidas" />
         <Indicador icono="bi-cash-coin" valor={soles(ingresos)} etiqueta="Ingresos" />
-        <Indicador icono="bi-receipt" valor={soles(Math.round(ingresos / entradas))} etiqueta="Precio promedio por entrada" />
+        <Indicador icono="bi-receipt" valor={soles(entradas ? Math.round(ingresos / entradas) : 0)} etiqueta="Precio promedio por entrada" />
       </div>
 
       <Tarjeta className="mt-6 overflow-hidden">
@@ -30,7 +34,7 @@ const Ventas = () => {
           <h2 className="text-lg font-bold">Compras recientes</h2>
         </div>
         <Tabla columnas={["Código", "Cliente", "Película y función", "Butacas", "Total", "Entrada"]}>
-          {COMPRAS.map((c) => (
+          {compras.datos.map((c) => (
             <tr key={c.codigo}>
               <td className="px-5 py-3 font-mono font-bold tracking-widest text-accent-400">{c.codigo}</td>
               <td className="px-5 py-3">{c.cliente}</td>
@@ -46,6 +50,7 @@ const Ventas = () => {
             </tr>
           ))}
         </Tabla>
+        <EstadoCarga cargando={compras.cargando || ventas.cargando} error={compras.error || ventas.error} />
       </Tarjeta>
     </>
   );

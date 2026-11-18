@@ -1,7 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useCartelera } from "../context/CarteleraContext";
+import { useCompra } from "../context/CompraContext";
 import { crearCompra } from "../services/compras";
 import PaginaCargando from "../components/PaginaCargando/PaginaCargando";
 import { esFechaValida, textoFecha } from "../utils/fechas";
@@ -37,16 +38,16 @@ const Fila = ({ etiqueta, children }) => (
 );
 
 const Resumen = () => {
-  const { state } = useLocation();
+  const { compra: eleccion, limpiar } = useCompra();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
 
   const { buscarPelicula, salas, cargando } = useCartelera();
-  const pelicula = buscarPelicula(state?.peliculaId);
-  const funcion = pelicula?.funciones.find((f) => f.id === state?.funcionId);
-  const asientos = state?.asientos ?? [];
-  const fecha = state?.fecha;
+  const pelicula = buscarPelicula(eleccion?.peliculaId);
+  const funcion = pelicula?.funciones.find((f) => f.id === eleccion?.funcionId);
+  const asientos = eleccion?.asientos ?? [];
+  const fecha = eleccion?.fecha;
 
   if (cargando) {
     return <PaginaCargando />;
@@ -65,6 +66,7 @@ const Resumen = () => {
     try {
       const compra = await crearCompra({ pelicula, funcion, asientos, fecha });
       navigate(`/ticket/${compra.id}`, { replace: true });
+      limpiar();
       toast.success("¡Compra realizada! Aquí está tu ticket");
     } catch (err) {
       setError(err.message);

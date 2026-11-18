@@ -1,3 +1,4 @@
+import { resolver } from "./servicio";
 import { supabase } from "./supabase";
 
 const aUsuario = (user) => {
@@ -17,15 +18,6 @@ const aUsuario = (user) => {
     genero: m.genero ?? "",
     promociones: Boolean(m.acepta_promociones),
   };
-};
-
-const traducir = (error) => {
-  const mensajes = {
-    "Invalid login credentials": "Correo o contraseña incorrectos",
-    "User already registered": "Ya existe una cuenta con ese correo",
-    "Email not confirmed": "Confirma tu correo antes de ingresar",
-  };
-  return new Error(mensajes[error.message] ?? error.message);
 };
 
 export const sesionActual = async () => {
@@ -55,23 +47,24 @@ export const registrar = async ({
   promociones,
 }) => {
   const ahora = new Date().toISOString();
-  const { data, error } = await supabase.auth.signUp({
-    email: email.trim(),
-    password,
-    options: {
-      data: {
-        nombre: nombre.trim(),
-        apellidos: apellidos.trim(),
-        dni,
-        celular,
-        fecha_nacimiento: fechaNacimiento,
-        genero,
-        acepta_terminos_en: ahora,
-        acepta_promociones: Boolean(promociones),
+  const data = await resolver(
+    supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: {
+          nombre: nombre.trim(),
+          apellidos: apellidos.trim(),
+          dni,
+          celular,
+          fecha_nacimiento: fechaNacimiento,
+          genero,
+          acepta_terminos_en: ahora,
+          acepta_promociones: Boolean(promociones),
+        },
       },
-    },
-  });
-  if (error) throw traducir(error);
+    })
+  );
   // Con correo ya registrado y confirmación activa, Supabase no da error: devuelve identities vacío.
   if (data.user && data.user.identities?.length === 0) {
     throw new Error("Ya existe una cuenta con ese correo");
@@ -80,8 +73,7 @@ export const registrar = async ({
 };
 
 export const ingresar = async ({ email, password }) => {
-  const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-  if (error) throw traducir(error);
+  await resolver(supabase.auth.signInWithPassword({ email: email.trim(), password }));
 };
 
 export const salir = async () => {
@@ -89,29 +81,30 @@ export const salir = async () => {
 };
 
 export const actualizarDatos = async ({ nombre, apellidos, fechaNacimiento, genero, celular, promociones }) => {
-  const { error } = await supabase.auth.updateUser({
-    data: {
-      nombre: nombre.trim(),
-      apellidos: apellidos.trim(),
-      celular,
-      fecha_nacimiento: fechaNacimiento,
-      genero,
-      acepta_promociones: Boolean(promociones),
-    },
-  });
-  if (error) throw traducir(error);
+  await resolver(
+    supabase.auth.updateUser({
+      data: {
+        nombre: nombre.trim(),
+        apellidos: apellidos.trim(),
+        celular,
+        fecha_nacimiento: fechaNacimiento,
+        genero,
+        acepta_promociones: Boolean(promociones),
+      },
+    })
+  );
 };
 
 export const cambiarPassword = async (password) => {
-  const { error } = await supabase.auth.updateUser({ password });
-  if (error) throw traducir(error);
+  await resolver(supabase.auth.updateUser({ password }));
 };
 
 // Envía un correo con un enlace para elegir una contraseña nueva. Supabase responde igual
 // exista o no la cuenta, así que no se revela qué correos están registrados.
 export const enviarCorreoRecuperacion = async (email) => {
-  const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-    redirectTo: `${window.location.origin}/restablecer-contrasena`,
-  });
-  if (error) throw traducir(error);
+  await resolver(
+    supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/restablecer-contrasena`,
+    })
+  );
 };
