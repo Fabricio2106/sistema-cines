@@ -113,3 +113,13 @@ export const Tabla = ({ columnas, children }) => (
     </table>
   </div>
 );
+
+// Estado de una pantalla que depende de datos: cargando o con error.
+export const EstadoCarga = ({ cargando, error }) => {
+  if (!cargando && !error) return null;
+  return (
+    <p role={error ? "alert" : "status"} className={`py-10 text-center text-sm ${error ? "text-red-400" : "text-primary-100/60"}`}>
+      {error || "Cargando…"}
+    </p>
+  );
+};

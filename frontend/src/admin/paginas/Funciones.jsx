@@ -1,18 +1,33 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { FUNCIONES, PELICULAS, SALAS, soles } from "../datos";
-import { BotonIcono, BotonPrimario, Campo, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
+import { soles } from "../datos";
+import { useFunciones, usePeliculas, useSalas } from "../hooks";
+import { BotonIcono, BotonPrimario, Campo, EstadoCarga, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
 
 const Funciones = () => {
   const [tab, setTab] = useState("funciones");
-  const [funciones, setFunciones] = useState(FUNCIONES);
+  const { datos: funciones, cargando, error, crear, actualizar } = useFunciones();
+  const { datos: peliculas } = usePeliculas();
+  const { datos: salas } = useSalas();
   const [nueva, setNueva] = useState(null);
 
-  const guardar = (e) => {
+  const guardar = async (e) => {
     e.preventDefault();
-    setFunciones((prev) => [...prev, { ...nueva, id: `f${prev.length + 1}`, sala: Number(nueva.sala), precio: Number(nueva.precio), activa: true }]);
-    toast.success("Función agregada (maqueta)");
-    setNueva(null);
+    try {
+      await crear({ ...nueva, activa: true });
+      toast.success("Función agregada (maqueta)");
+      setNueva(null);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  const alternar = async (f) => {
+    try {
+      await actualizar(f.id, { activa: !f.activa });
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
   const cambiar = (e) => setNueva({ ...nueva, [e.target.name]: e.target.value });
@@ -21,7 +36,7 @@ const Funciones = () => {
     <>
       <TituloPagina titulo="Funciones y salas" descripcion="Horarios, precios y distribución de las salas.">
         {tab === "funciones" && (
-          <BotonPrimario onClick={() => setNueva({ pelicula: PELICULAS[0].titulo, hora: "18:00", sala: 1, precio: 15 })}>
+          <BotonPrimario onClick={() => setNueva({ pelicula: peliculas[0]?.titulo ?? "", hora: "18:00", sala: salas[0]?.id ?? 1, precio: 15 })}>
             <i className="bi bi-plus-lg" aria-hidden="true" />
             Nueva función
           </BotonPrimario>
@@ -49,6 +64,8 @@ const Funciones = () => {
         ))}
       </div>
 
+      <EstadoCarga cargando={cargando} error={error} />
+
       {tab === "funciones" ? (
         <Tarjeta className="overflow-hidden">
           <Tabla columnas={["Película", "Hora", "Sala", "Precio", "Estado", "Acciones"]}>
@@ -66,7 +83,7 @@ const Funciones = () => {
                     <BotonIcono
                       icono={f.activa ? "bi-pause-fill" : "bi-play-fill"}
                       etiqueta={f.activa ? "Pausar función" : "Reactivar función"}
-                      onClick={() => setFunciones((prev) => prev.map((x) => (x.id === f.id ? { ...x, activa: !x.activa } : x)))}
+                      onClick={() => alternar(f)}
                     />
                   </div>
                 </td>
@@ -76,7 +93,7 @@ const Funciones = () => {
         </Tarjeta>
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {SALAS.map((s) => (
+          {salas.map((s) => (
             <Tarjeta key={s.id} className="p-6">
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
@@ -109,7 +126,7 @@ const Funciones = () => {
           <form onSubmit={guardar} className="space-y-4">
             <Campo etiqueta="Película">
               <select name="pelicula" value={nueva.pelicula} onChange={cambiar} className={entrada}>
-                {PELICULAS.map((p) => (
+                {peliculas.map((p) => (
                   <option key={p.id} className="text-black">
                     {p.titulo}
                   </option>
@@ -122,7 +139,7 @@ const Funciones = () => {
               </Campo>
               <Campo etiqueta="Sala">
                 <select name="sala" value={nueva.sala} onChange={cambiar} className={entrada}>
-                  {SALAS.map((s) => (
+                  {salas.map((s) => (
                     <option key={s.id} value={s.id} className="text-black">
                       {s.nombre}
                     </option>

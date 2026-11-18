@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { COMPRAS } from "../datos";
+import toast from "react-hot-toast";
+import { useCompras } from "../hooks";
 import { Tarjeta, TituloPagina, entrada } from "../ui";
 
 const ESTADOS = {
@@ -12,20 +13,27 @@ const ESTADOS = {
 const Validar = () => {
   const [codigo, setCodigo] = useState("");
   const [resultado, setResultado] = useState(null);
-  const [usadas, setUsadas] = useState([]);
+  const { buscarPorCodigo, marcarUsada: marcar } = useCompras();
 
-  const validar = (e) => {
+  const validar = async (e) => {
     e.preventDefault();
     const limpio = codigo.trim().toUpperCase();
-    const compra = COMPRAS.find((c) => c.codigo === limpio);
-    if (!compra) return setResultado({ estado: "noExiste", codigo: limpio });
-    const yaUsada = compra.usada || usadas.includes(compra.codigo);
-    setResultado({ estado: yaUsada ? "usada" : "valida", compra });
+    try {
+      const compra = await buscarPorCodigo(limpio);
+      if (!compra) return setResultado({ estado: "noExiste", codigo: limpio });
+      setResultado({ estado: compra.usada ? "usada" : "valida", compra });
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
-  const marcarUsada = () => {
-    setUsadas((prev) => [...prev, resultado.compra.codigo]);
-    setResultado({ estado: "usada", compra: resultado.compra, recienMarcada: true });
+  const marcarUsada = async () => {
+    try {
+      const compra = await marcar(resultado.compra.codigo);
+      setResultado({ estado: "usada", compra, recienMarcada: true });
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
   const info = resultado && ESTADOS[resultado.estado];

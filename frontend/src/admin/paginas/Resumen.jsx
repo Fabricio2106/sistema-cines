@@ -1,11 +1,32 @@
-import { FUNCIONES, SALAS, TOP_PELICULAS, VENTAS_SEMANA, soles } from "../datos";
-import { Indicador, Tabla, TituloPagina, Tarjeta } from "../ui";
+import { soles } from "../datos";
+import { useFunciones, usePeliculas, useSalas, useTopPeliculas, useVentasSemana } from "../hooks";
+import { EstadoCarga, Indicador, Tabla, TituloPagina, Tarjeta } from "../ui";
 
 const Resumen = () => {
-  const hoy = VENTAS_SEMANA[VENTAS_SEMANA.length - 1];
-  const maximo = Math.max(...VENTAS_SEMANA.map((d) => d.ingresos));
-  const totalSemana = VENTAS_SEMANA.reduce((suma, d) => suma + d.ingresos, 0);
-  const proximas = FUNCIONES.filter((f) => f.activa).slice(0, 5);
+  const ventas = useVentasSemana();
+  const top = useTopPeliculas();
+  const funciones = useFunciones();
+  const salas = useSalas();
+  const peliculas = usePeliculas();
+
+  const cargando = ventas.cargando || top.cargando || funciones.cargando || salas.cargando || peliculas.cargando;
+  const error = ventas.error || top.error || funciones.error || salas.error || peliculas.error;
+
+  if (cargando || error) {
+    return (
+      <>
+        <TituloPagina titulo="Resumen" descripcion="Cómo va el cine hoy y en los últimos 7 días." />
+        <EstadoCarga cargando={cargando} error={error} />
+      </>
+    );
+  }
+
+  const semana = ventas.datos;
+  const hoy = semana[semana.length - 1];
+  const maximo = Math.max(...semana.map((d) => d.ingresos));
+  const totalSemana = semana.reduce((suma, d) => suma + d.ingresos, 0);
+  const proximas = funciones.datos.filter((f) => f.activa).slice(0, 5);
+  const enCartelera = peliculas.datos.filter((p) => p.activa).length;
 
   return (
     <>
@@ -15,7 +36,7 @@ const Resumen = () => {
         <Indicador icono="bi-ticket-perforated-fill" valor={hoy.entradas} etiqueta="Entradas hoy" detalle="+12% vs. ayer" />
         <Indicador icono="bi-cash-coin" valor={soles(hoy.ingresos)} etiqueta="Ingresos hoy" detalle="+9% vs. ayer" />
         <Indicador icono="bi-people-fill" valor="68%" etiqueta="Ocupación promedio" />
-        <Indicador icono="bi-film" valor="10" etiqueta="Películas en cartelera" />
+        <Indicador icono="bi-film" valor={enCartelera} etiqueta="Películas en cartelera" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.6fr_1fr]">
@@ -27,7 +48,7 @@ const Resumen = () => {
             </div>
           </div>
           <ul className="flex h-56 items-end gap-1.5 sm:gap-3" aria-label="Ingresos por día">
-            {VENTAS_SEMANA.map((d) => (
+            {semana.map((d) => (
               <li key={d.dia} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
                 <span className="text-[10px] font-semibold text-primary-100/70 sm:text-xs">
                   <span className="sm:hidden">{d.ingresos >= 1000 ? `${(d.ingresos / 1000).toFixed(1)}k` : d.ingresos}</span>
@@ -48,7 +69,7 @@ const Resumen = () => {
         <Tarjeta className="p-6">
           <h2 className="mb-4 text-lg font-bold">Películas más vendidas</h2>
           <ol className="space-y-4">
-            {TOP_PELICULAS.map((p, i) => (
+            {top.datos.map((p, i) => (
               <li key={p.titulo} className="flex items-center gap-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-600/30 text-sm font-bold text-accent-400">
                   {i + 1}
@@ -71,7 +92,7 @@ const Resumen = () => {
         <div className="mt-3">
           <Tabla columnas={["Película", "Hora", "Sala", "Ocupación"]}>
             {proximas.map((f, i) => {
-              const sala = SALAS.find((s) => s.id === f.sala);
+              const sala = salas.datos.find((s) => s.id === f.sala);
               const capacidad = sala.filas.length * sala.porFila;
               const ocupadas = Math.round(capacidad * [0.82, 0.64, 0.45, 0.9, 0.37][i]);
               return (
