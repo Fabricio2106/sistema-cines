@@ -32,7 +32,7 @@ const AdminLayout = () => {
     }`;
 
   return (
-    <div className="min-h-screen bg-primary-950 text-white lg:grid lg:grid-cols-[17rem_1fr]">
+    <div className="min-h-screen bg-primary-950 text-white lg:grid lg:h-screen lg:grid-cols-[17rem_1fr] lg:overflow-hidden">
       {/* Barra lateral (escritorio) / barra superior (móvil) */}
       <aside className="border-b border-primary-800/60 bg-black/30 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between gap-4 px-5 py-4 lg:block lg:py-6">
@@ -59,9 +59,10 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      <div className="min-w-0">
+      {/* En escritorio la página ocupa la pantalla y solo la zona de contenido se desplaza */}
+      <div className="min-w-0 lg:flex lg:h-screen lg:flex-col">
         {/* Barra superior */}
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-primary-800/60 px-5 py-3 sm:px-8">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-primary-800/60 px-5 py-3 sm:px-8 lg:shrink-0">
           <span className="inline-flex items-center gap-2 rounded-full bg-accent-400/15 px-3 py-1 text-xs font-bold text-accent-400">
             <i className="bi bi-person-badge-fill" aria-hidden="true" />
             {ROLES[rol]}
@@ -82,7 +83,7 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        <main className="px-5 py-8 sm:px-8">
+        <main className="px-5 py-8 sm:px-8 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:py-6">
           <Outlet />
         </main>
       </div>
