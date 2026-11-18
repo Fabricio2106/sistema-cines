@@ -1,4 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import * as Select from "@radix-ui/react-select";
 
 // Piezas visuales compartidas por las pantallas del panel.
 
@@ -80,13 +81,13 @@ export const Modal = ({ abierto, onCerrar, titulo, descripcion, children }) => (
       <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm" />
       <Dialog.Content
         aria-describedby={descripcion ? undefined : undefined}
-        className="fixed left-1/2 top-1/2 z-[61] max-h-[90vh] w-[92vw] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-primary-700/50 bg-primary-950 p-6 shadow-2xl shadow-black/60 focus:outline-none"
+        className="fixed left-1/2 top-1/2 z-[61] max-h-[90vh] w-[92vw] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-primary-700/50 bg-primary-950 px-6 pt-6 text-white shadow-2xl shadow-black/60 focus:outline-none"
       >
         <Dialog.Title className="text-xl font-bold text-white">{titulo}</Dialog.Title>
         {descripcion ? (
           <Dialog.Description className="mt-1 text-sm text-primary-100/60">{descripcion}</Dialog.Description>
         ) : null}
-        <div className="mt-5">{children}</div>
+        <div className="mt-5 pb-6">{children}</div>
         <Dialog.Close
           aria-label="Cerrar"
           className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-primary-100/70 transition-colors hover:bg-primary-600 hover:text-white"
@@ -98,13 +99,15 @@ export const Modal = ({ abierto, onCerrar, titulo, descripcion, children }) => (
   </Dialog.Root>
 );
 
-export const Tabla = ({ columnas, children }) => (
-  <div className="overflow-x-auto">
+// La tabla se desplaza dentro de su contenedor: con `className` (alto fijo, p. ej. "min-h-0 flex-1")
+// el encabezado queda fijo mientras se recorren las filas.
+export const Tabla = ({ columnas, children, className = "" }) => (
+  <div className={`overflow-auto ${className}`}>
     <table className="w-full min-w-[640px] text-left text-sm">
       <thead>
         <tr className="border-b border-primary-800/60 text-xs uppercase tracking-wider text-primary-100/50">
           {columnas.map((c) => (
-            <th key={c} scope="col" className="px-5 py-3 font-bold">
+            <th key={c} scope="col" className="sticky top-0 z-10 bg-primary-950 px-5 py-3 font-bold">
               {c}
             </th>
           ))}
@@ -122,5 +125,60 @@ export const EstadoCarga = ({ cargando, error }) => {
     <p role={error ? "alert" : "status"} className={`py-10 text-center text-sm ${error ? "text-red-400" : "text-primary-100/60"}`}>
       {error || "Cargando…"}
     </p>
+  );
+};
+
+// Radix no admite un valor vacío en sus opciones: "Todos" (valor "") se guarda con esta marca.
+const VACIO = "__vacio__";
+
+// Lista desplegable con el estilo del panel (reemplaza al <select> nativo, cuyo menú no se puede
+// diseñar). Úsalo para todos los campos de elegir una opción del panel, así se ven siempre igual.
+//   <Desplegable name="genero" value={genero} onChange={cambiar} opciones={["Acción", "Drama"]} />
+// `opciones` es una lista de textos o de { valor, etiqueta, detalle? } (detalle = línea gris debajo).
+// `value` puede ser texto o número; `onChange` recibe { target: { name, value } } (value es texto),
+// igual que un evento de formulario. Con un valor distinto de "" el borde se resalta.
+export const Desplegable = ({ name, value, onChange, opciones: lista, className = "" }) => {
+  const opciones = lista.map((o) => (typeof o === "object" ? { ...o, valor: String(o.valor) } : { valor: o, etiqueta: o }));
+  const actual = String(value ?? "");
+  const interno = actual === "" ? VACIO : actual;
+  return (
+    <Select.Root value={interno} onValueChange={(v) => onChange({ target: { name, value: v === VACIO ? "" : v } })}>
+      <Select.Trigger
+        className={`flex w-full items-center justify-between gap-2 rounded-xl border bg-primary-950/70 px-4 py-2.5 text-left text-white transition-colors focus:outline-none focus:ring-1 focus:ring-accent-400 data-[state=open]:border-accent-400 ${
+          actual === "" ? "border-primary-800/70" : "border-accent-400/70"
+        } ${className}`}
+      >
+        <span className="min-w-0 truncate"><Select.Value /></span>
+        <Select.Icon asChild>
+          <i className="bi bi-chevron-down text-xs text-primary-400 transition-transform [[data-state=open]_&]:rotate-180" aria-hidden="true" />
+        </Select.Icon>
+      </Select.Trigger>
+
+      <Select.Portal>
+        <Select.Content
+          position="popper"
+          sideOffset={6}
+          className="z-[70] max-h-[min(18rem,var(--radix-select-content-available-height))] w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-primary-700/60 bg-primary-950 py-1.5 text-white shadow-2xl shadow-black/60"
+        >
+          <Select.Viewport className="px-1.5">
+            {opciones.map((o) => (
+              <Select.Item
+                key={o.valor || VACIO}
+                value={o.valor === "" ? VACIO : o.valor}
+                className="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm text-primary-100/80 outline-none data-[highlighted]:bg-primary-600 data-[highlighted]:text-white data-[state=checked]:font-semibold data-[state=checked]:text-white"
+              >
+                <span className="min-w-0">
+                  <Select.ItemText>{o.etiqueta}</Select.ItemText>
+                  {o.detalle && <span className="block text-xs font-normal text-primary-100/50">{o.detalle}</span>}
+                </span>
+                <Select.ItemIndicator>
+                  <i className="bi bi-check-lg text-accent-400" aria-hidden="true" />
+                </Select.ItemIndicator>
+              </Select.Item>
+            ))}
+          </Select.Viewport>
+        </Select.Content>
+      </Select.Portal>
+    </Select.Root>
   );
 };

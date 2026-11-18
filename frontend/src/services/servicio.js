@@ -32,6 +32,11 @@ const traducir = (error, mensajeFijo) => {
   const texto = error?.message ?? "";
   if (esErrorDeRed(texto)) return SIN_CONEXION;
   if (MENSAJES_POR_CODIGO[error?.code]) return MENSAJES_POR_CODIGO[error.code];
+  // Almacenamiento de archivos (Storage): sus errores solo traen texto.
+  if (/row-level security|not authorized|unauthorized/i.test(texto)) return "No tienes permiso para hacer esto";
+  if (/bucket not found/i.test(texto)) return "Falta crear el almacenamiento de pósters: ejecuta backend/supabase/posters.sql en Supabase";
+  if (/maximum allowed size|payload too large/i.test(texto)) return "La imagen supera el tamaño permitido (3 MB)";
+  if (/mime type/i.test(texto)) return "El póster debe ser una imagen JPG, PNG o WEBP";
   return MENSAJES[texto] ?? (texto || "Ocurrió un error inesperado");
 };
 
