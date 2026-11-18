@@ -1,3 +1,4 @@
+import { resolver } from "./servicio";
 import { supabase } from "./supabase";
 
 const aPelicula = (fila) => ({
@@ -19,16 +20,14 @@ const aPelicula = (fila) => ({
 // Devuelve las películas activas con sus funciones y el mapa de salas por id.
 export const cargarCartelera = async () => {
   const [peliculas, salas] = await Promise.all([
-    supabase.from("peliculas").select("*, funciones(*)").eq("activa", true).order("orden"),
-    supabase.from("salas").select("*"),
+    resolver(supabase.from("peliculas").select("*, funciones(*)").eq("activa", true).order("orden")),
+    resolver(supabase.from("salas").select("*")),
   ]);
-  const error = peliculas.error ?? salas.error;
-  if (error) throw new Error(error.message);
 
   return {
-    peliculas: peliculas.data.map(aPelicula),
+    peliculas: peliculas.map(aPelicula),
     salas: Object.fromEntries(
-      salas.data.map((s) => [
+      salas.map((s) => [
         s.id,
         { nombre: s.nombre, filas: s.filas, asientosPorFila: s.asientos_por_fila },
       ])
