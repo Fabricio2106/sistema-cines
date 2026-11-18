@@ -6,6 +6,7 @@ const aPelicula = (fila) => ({
   id: fila.id,
   titulo: fila.titulo,
   genero: fila.genero,
+  descripcion: fila.descripcion ?? "",
   clasificacion: normalizarClasificacion(fila.clasificacion),
   estreno: fila.fecha_estreno ?? "",
   trailerUrl: fila.trailer_url ?? "",
@@ -23,11 +24,12 @@ const crearId = (titulo) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-// Solo se envían los campos que el panel puede editar; descripción, banner y póster no se tocan.
+// Solo se envían los campos que el panel puede editar; el banner y el póster (que se sube aparte) no se tocan.
 const aFila = (d) => {
   const fila = {};
   if ("titulo" in d) fila.titulo = d.titulo.trim();
   if ("genero" in d) fila.genero = d.genero;
+  if ("descripcion" in d) fila.descripcion = d.descripcion.trim();
   if ("clasificacion" in d) fila.clasificacion = d.clasificacion.trim() || null;
   if ("estreno" in d) fila.fecha_estreno = d.estreno || null;
   if ("trailerUrl" in d) fila.trailer_url = d.trailerUrl.trim() || null;

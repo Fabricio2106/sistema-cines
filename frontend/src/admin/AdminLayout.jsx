@@ -6,7 +6,8 @@ import { ROLES } from "./constantes";
 const MENU = [
   { a: "/admin", etiqueta: "Resumen", icono: "bi-speedometer2", roles: ["admin"], fin: true },
   { a: "/admin/peliculas", etiqueta: "Películas", icono: "bi-film", roles: ["admin"] },
-  { a: "/admin/funciones", etiqueta: "Funciones y salas", icono: "bi-calendar-event-fill", roles: ["admin"] },
+  { a: "/admin/funciones", etiqueta: "Funciones", icono: "bi-calendar-event-fill", roles: ["admin"] },
+  { a: "/admin/salas", etiqueta: "Salas", icono: "bi-grid-3x3-gap-fill", roles: ["admin"] },
   { a: "/admin/ventas", etiqueta: "Ventas", icono: "bi-graph-up-arrow", roles: ["admin", "boleteria"] },
   { a: "/admin/validar", etiqueta: "Validar entradas", icono: "bi-qr-code-scan", roles: ["admin", "boleteria"] },
 ];
@@ -83,7 +84,7 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        <main className="px-5 py-8 sm:px-8 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:py-6">
+        <main className="scroll-cine px-5 py-8 sm:px-8 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:py-6">
           <Outlet />
         </main>
       </div>

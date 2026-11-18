@@ -5,6 +5,7 @@ import AdminLogin from "./AdminLogin";
 import Resumen from "./paginas/Resumen";
 import Peliculas from "./paginas/Peliculas";
 import Funciones from "./paginas/Funciones";
+import Salas from "./paginas/Salas";
 import Ventas from "./paginas/Ventas";
 import Validar from "./paginas/Validar";
 
@@ -17,6 +18,7 @@ const Admin = () => (
         <Route index element={<Resumen />} />
         <Route path="peliculas" element={<Peliculas />} />
         <Route path="funciones" element={<Funciones />} />
+        <Route path="salas" element={<Salas />} />
         <Route path="ventas" element={<Ventas />} />
         <Route path="validar" element={<Validar />} />
       </Route>

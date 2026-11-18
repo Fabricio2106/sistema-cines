@@ -44,7 +44,9 @@ const Resumen = () => {
   };
   const vendidas = (f) => ocupacion.datos[f.id] ?? 0;
 
-  const deHoy = funciones.datos.filter((f) => f.activa);
+  // Solo cuentan las funciones activas de películas activas (las demás no se ven en la web).
+  const idsActivas = new Set(peliculas.datos.filter((p) => p.activa).map((p) => p.id));
+  const deHoy = funciones.datos.filter((f) => f.activa && idsActivas.has(f.peliculaId));
   const capacidadTotal = deHoy.reduce((suma, f) => suma + capacidadDe(f), 0);
   const ocupacionPromedio = capacidadTotal
     ? Math.round((deHoy.reduce((suma, f) => suma + vendidas(f), 0) / capacidadTotal) * 100)
@@ -100,7 +102,7 @@ const Resumen = () => {
           {top.datos.length === 0 ? (
             <p className="text-sm text-primary-100/60">Todavía no hay ventas en los últimos 7 días.</p>
           ) : (
-            <ol className="min-h-0 space-y-3 xl:overflow-y-auto">
+            <ol className="scroll-cine min-h-0 space-y-3 xl:overflow-y-auto">
               {top.datos.map((p, i) => (
                 <li key={p.titulo} className="flex items-center gap-3">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-600/30 text-sm font-bold text-accent-400">
@@ -122,7 +124,7 @@ const Resumen = () => {
           {proximas.length === 0 ? (
             <p className="text-sm text-primary-100/60">No quedan funciones por empezar hoy.</p>
           ) : (
-            <ul className="min-h-0 space-y-3 xl:overflow-y-auto">
+            <ul className="scroll-cine min-h-0 space-y-3 xl:overflow-y-auto">
               {proximas.map((f) => {
                 const sala = salas.datos.find((s) => s.id === f.sala);
                 const capacidad = capacidadDe(f);

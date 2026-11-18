@@ -60,7 +60,7 @@ export const BotonIcono = ({ icono, etiqueta, ...props }) => (
 export const BotonPrimario = ({ children, ...props }) => (
   <button
     type="button"
-    className="inline-flex items-center gap-2 rounded-full bg-accent-400 px-5 py-2.5 text-sm font-bold text-black shadow-lg shadow-accent-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-300"
+    className="inline-flex items-center gap-2 rounded-full bg-accent-400 px-5 py-2.5 text-sm font-bold text-black shadow-lg shadow-accent-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-300 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-accent-400"
     {...props}
   >
     {children}
@@ -75,13 +75,14 @@ export const Campo = ({ etiqueta, children }) => (
 );
 
 // Ventana modal (Radix Dialog) con la paleta del sitio.
-export const Modal = ({ abierto, onCerrar, titulo, descripcion, children }) => (
+// `ancho` es una clase de Tailwind (por defecto "max-w-lg"); un formulario grande puede pedir "max-w-5xl".
+export const Modal = ({ abierto, onCerrar, titulo, descripcion, ancho = "max-w-lg", children }) => (
   <Dialog.Root open={abierto} onOpenChange={(v) => !v && onCerrar()}>
     <Dialog.Portal>
       <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm" />
       <Dialog.Content
         aria-describedby={descripcion ? undefined : undefined}
-        className="fixed left-1/2 top-1/2 z-[61] max-h-[90vh] w-[92vw] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-primary-700/50 bg-primary-950 px-6 pt-6 text-white shadow-2xl shadow-black/60 focus:outline-none"
+        className={`scroll-cine fixed left-1/2 top-1/2 z-[61] max-h-[90vh] w-[92vw] ${ancho} -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-primary-700/50 bg-primary-950 px-6 pt-6 text-white shadow-2xl shadow-black/60 focus:outline-none`}
       >
         <Dialog.Title className="text-xl font-bold text-white">{titulo}</Dialog.Title>
         {descripcion ? (
@@ -97,25 +98,6 @@ export const Modal = ({ abierto, onCerrar, titulo, descripcion, children }) => (
       </Dialog.Content>
     </Dialog.Portal>
   </Dialog.Root>
-);
-
-// La tabla se desplaza dentro de su contenedor: con `className` (alto fijo, p. ej. "min-h-0 flex-1")
-// el encabezado queda fijo mientras se recorren las filas.
-export const Tabla = ({ columnas, children, className = "" }) => (
-  <div className={`overflow-auto ${className}`}>
-    <table className="w-full min-w-[640px] text-left text-sm">
-      <thead>
-        <tr className="border-b border-primary-800/60 text-xs uppercase tracking-wider text-primary-100/50">
-          {columnas.map((c) => (
-            <th key={c} scope="col" className="sticky top-0 z-10 bg-primary-950 px-5 py-3 font-bold">
-              {c}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-primary-800/40">{children}</tbody>
-    </table>
-  </div>
 );
 
 // Estado de una pantalla que depende de datos: cargando o con error.
@@ -160,7 +142,7 @@ export const Desplegable = ({ name, value, onChange, opciones: lista, className 
           sideOffset={6}
           className="z-[70] max-h-[min(18rem,var(--radix-select-content-available-height))] w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-primary-700/60 bg-primary-950 py-1.5 text-white shadow-2xl shadow-black/60"
         >
-          <Select.Viewport className="px-1.5">
+          <Select.Viewport className="scroll-cine px-1.5">
             {opciones.map((o) => (
               <Select.Item
                 key={o.valor || VACIO}
@@ -182,3 +164,45 @@ export const Desplegable = ({ name, value, onChange, opciones: lista, className 
     </Select.Root>
   );
 };
+
+// Botón "Filtros" que abre y cierra el panel; muestra cuántos filtros hay activos.
+export const BotonFiltros = ({ abierto, activos, onClick }) => (
+  <button
+    type="button"
+    aria-expanded={abierto}
+    onClick={onClick}
+    className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors ${
+      abierto || activos > 0
+        ? "border-accent-400 bg-accent-400/10 text-white"
+        : "border-primary-700/60 text-primary-100/80 hover:bg-primary-600 hover:text-white"
+    }`}
+  >
+    <i className="bi bi-funnel-fill" aria-hidden="true" />
+    Filtros
+    {activos > 0 && <span className="rounded-full bg-accent-400 px-2 py-0.5 text-xs font-bold text-black">{activos}</span>}
+  </button>
+);
+
+const COLUMNAS_FILTROS = { 1: "lg:grid-cols-1", 2: "lg:grid-cols-2", 3: "lg:grid-cols-3", 4: "lg:grid-cols-4" };
+
+// Panel con un desplegable por filtro, para usar debajo del buscador de cualquier lista.
+//   campos    [{ name, etiqueta, opciones }]; las opciones llevan el valor "" para "Todos".
+//   valores   objeto con el valor actual de cada filtro, por ejemplo { genero: "", estado: "" }.
+//   onCambio  recibe { target: { name, value } }.
+//   onLimpiar quita todos los filtros; el enlace aparece solo si hay alguno elegido.
+export const PanelFiltros = ({ campos, valores, onCambio, onLimpiar }) => (
+  <Tarjeta className="p-4">
+    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${COLUMNAS_FILTROS[campos.length] ?? "lg:grid-cols-4"}`}>
+      {campos.map((c) => (
+        <Campo key={c.name} etiqueta={c.etiqueta}>
+          <Desplegable name={c.name} value={valores[c.name]} onChange={onCambio} opciones={c.opciones} />
+        </Campo>
+      ))}
+    </div>
+    {Object.values(valores).some(Boolean) && (
+      <button type="button" onClick={onLimpiar} className="mt-4 text-sm font-semibold text-accent-400 hover:underline">
+        Limpiar filtros
+      </button>
+    )}
+  </Tarjeta>
+);

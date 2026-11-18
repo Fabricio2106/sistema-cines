@@ -1,7 +1,8 @@
 import toast from "react-hot-toast";
 import { soles } from "../constantes";
 import { useCompras, useVentasSemana } from "../hooks";
-import { EstadoCarga, Indicador, Insignia, Tabla, TituloPagina, Tarjeta } from "../ui";
+import TablaDatos from "../../components/TablaDatos/TablaDatos";
+import { EstadoCarga, Indicador, Insignia, TituloPagina, Tarjeta } from "../ui";
 
 const Ventas = () => {
   const compras = useCompras();
@@ -33,23 +34,27 @@ const Ventas = () => {
         <div className="border-b border-primary-800/60 px-6 py-4">
           <h2 className="text-lg font-bold">Compras recientes</h2>
         </div>
-        <Tabla columnas={["Código", "Cliente", "Película y función", "Butacas", "Total", "Entrada"]}>
-          {compras.datos.map((c) => (
-            <tr key={c.codigo}>
-              <td className="px-5 py-3 font-mono font-bold tracking-widest text-accent-400">{c.codigo}</td>
-              <td className="px-5 py-3">{c.cliente}</td>
-              <td className="px-5 py-3">
-                <span className="block font-semibold">{c.pelicula}</span>
-                <span className="text-xs text-primary-100/60">{c.funcion}</span>
-              </td>
-              <td className="px-5 py-3">{c.asientos}</td>
-              <td className="px-5 py-3 font-bold">{soles(c.total)}</td>
-              <td className="px-5 py-3">
-                <Insignia activa={!c.usada} textoActiva="Sin usar" textoInactiva="Usada" />
-              </td>
-            </tr>
-          ))}
-        </Tabla>
+        <TablaDatos
+          columnas={[
+            { titulo: "Código", clase: "font-mono font-bold tracking-widest text-accent-400", celda: (c) => c.codigo },
+            { titulo: "Cliente", celda: (c) => c.cliente },
+            {
+              titulo: "Película y función",
+              celda: (c) => (
+                <>
+                  <span className="block font-semibold">{c.pelicula}</span>
+                  <span className="text-xs text-primary-100/60">{c.funcion}</span>
+                </>
+              ),
+            },
+            { titulo: "Butacas", celda: (c) => c.asientos },
+            { titulo: "Total", clase: "font-bold", celda: (c) => soles(c.total) },
+            { titulo: "Entrada", celda: (c) => <Insignia activa={!c.usada} textoActiva="Sin usar" textoInactiva="Usada" /> },
+          ]}
+          filas={compras.datos}
+          claveFila={(c) => c.codigo}
+          vacio="Todavía no hay compras."
+        />
         <EstadoCarga cargando={compras.cargando || ventas.cargando} error={compras.error || ventas.error} />
       </Tarjeta>
     </>
