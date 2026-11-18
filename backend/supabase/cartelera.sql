@@ -15,7 +15,7 @@ create table if not exists public.peliculas (
   id            text primary key,          -- identificador de la URL, ej: exorcismo-el-ritual
   titulo        text not null,
   genero        text not null,
-  clasificacion text,                      -- ATP, 14+, 18+… ; vacío = no se muestra insignia
+  clasificacion text,                      -- APT, +14, +14 c/DNI, +18 ; vacío = no se muestra insignia
   descripcion   text not null default '',
   poster_url    text,                      -- vertical (2:3); si falta se usa el banner
   banner_url    text,                      -- horizontal; sin banner no sale en el Hero
@@ -84,19 +84,19 @@ insert into public.peliculas (id, titulo, genero, clasificacion, descripcion, po
    '/posters/street-fighter.jpg', null, 10),
   ('caballo-salvaje-nueve', 'Caballo Salvaje Nueve', 'Crimen', null, 'Del director de Tres anuncios por un crimen y Los espíritus de la isla. Con John Malkovich, Sam Rockwell y Steve Buscemi. Escrita y dirigida por Martin McDonagh.',
    '/posters/caballo-salvaje-nueve.webp', null, 11),
-  ('exorcismo-el-ritual', 'Exorcismo: El ritual', 'Terror', '16+', 'Basada en hechos reales, la historia que inspiró El Exorcista.',
+  ('exorcismo-el-ritual', 'Exorcismo: El ritual', 'Terror', '+14 c/DNI', 'Basada en hechos reales, la historia que inspiró El Exorcista.',
    '/posters/estreno1.jpg', '/posters/peli1.jpg', 12),
-  ('la-hora-de-la-desaparicion', 'La hora de la desaparición', 'Thriller', '16+', 'Del director de Bárbaro. Una noche, a las 2:17 a.m., todos los niños de una misma clase desaparecen.',
+  ('la-hora-de-la-desaparicion', 'La hora de la desaparición', 'Thriller', '+14 c/DNI', 'Del director de Bárbaro. Una noche, a las 2:17 a.m., todos los niños de una misma clase desaparecen.',
    '/posters/estreno4.jpg', '/posters/peli2.jpg', 13),
-  ('los-tipos-malos-2', 'Los Tipos Malos 2', 'Animación', 'ATP', 'La banda de DreamWorks vuelve con una nueva aventura.',
+  ('los-tipos-malos-2', 'Los Tipos Malos 2', 'Animación', 'APT', 'La banda de DreamWorks vuelve con una nueva aventura.',
    '/posters/estreno2.jpg', '/posters/peli3.jpg', 14),
-  ('freakier-friday', 'Freakier Friday', 'Comedia', 'ATP', 'Jamie Lee Curtis y Lindsay Lohan regresan en la secuela de Disney.',
+  ('freakier-friday', 'Freakier Friday', 'Comedia', 'APT', 'Jamie Lee Curtis y Lindsay Lohan regresan en la secuela de Disney.',
    '/posters/estreno3.jpg', null, 15),
-  ('uyariy', 'Uyariy', 'Documental', 'ATP', 'Un poderoso documental sobre las protestas en Juliaca. Una película de Javier Corcuera.',
+  ('uyariy', 'Uyariy', 'Documental', 'APT', 'Un poderoso documental sobre las protestas en Juliaca. Una película de Javier Corcuera.',
    null, '/posters/uyayri.jpg', 16),
-  ('perusalen', 'Perusalén', 'Comedia', '16+', 'Una sátira hilarante sobre la realidad peruana.',
+  ('perusalen', 'Perusalén', 'Comedia', '+14 c/DNI', 'Una sátira hilarante sobre la realidad peruana.',
    null, '/posters/perusalen.jpg', 17),
-  ('como-entrenar-a-tu-dragon', 'Cómo Entrenar a tu Dragón', 'Fantasía', 'ATP', 'La épica aventura llega en acción real.',
+  ('como-entrenar-a-tu-dragon', 'Cómo Entrenar a tu Dragón', 'Fantasía', 'APT', 'La épica aventura llega en acción real.',
    null, '/posters/portadadragon.webp', 18)
 on conflict (id) do nothing;
 

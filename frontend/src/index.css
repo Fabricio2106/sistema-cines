@@ -48,6 +48,14 @@ body {
     --rdp-day_button-height: calc(var(--rdp-day-width) - 2px);
     color: #fff;
 }
+/* Versión chica, para el calendario dentro de un menú flotante */
+.calendario-cine.calendario-compacto.rdp-root {
+    --rdp-day-width: 38px;
+    --rdp-day-height: 38px;
+    --rdp-day_button-width: 36px;
+    --rdp-day_button-height: 36px;
+    font-size: 0.9rem;
+}
 .calendario-cine .rdp-chevron {
     fill: #facc15;
 }

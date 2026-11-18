@@ -2,7 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { soles } from "../constantes";
 import { useFunciones, usePeliculas, useSalas } from "../hooks";
-import { BotonIcono, BotonPrimario, Campo, EstadoCarga, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
+import { BotonIcono, BotonPrimario, Campo, Desplegable, EstadoCarga, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
 
 const Funciones = () => {
   const [tab, setTab] = useState("funciones");
@@ -125,26 +125,24 @@ const Funciones = () => {
         {nueva && (
           <form onSubmit={guardar} className="space-y-4">
             <Campo etiqueta="Película">
-              <select name="peliculaId" value={nueva.peliculaId} onChange={cambiar} className={entrada}>
-                {peliculas.map((p) => (
-                  <option key={p.id} value={p.id} className="text-black">
-                    {p.titulo}
-                  </option>
-                ))}
-              </select>
+              <Desplegable
+                name="peliculaId"
+                value={nueva.peliculaId}
+                onChange={cambiar}
+                opciones={peliculas.map((p) => ({ valor: p.id, etiqueta: p.titulo }))}
+              />
             </Campo>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Campo etiqueta="Hora">
                 <input name="hora" type="time" value={nueva.hora} onChange={cambiar} required className={`${entrada} [color-scheme:dark]`} />
               </Campo>
               <Campo etiqueta="Sala">
-                <select name="sala" value={nueva.sala} onChange={cambiar} className={entrada}>
-                  {salas.map((s) => (
-                    <option key={s.id} value={s.id} className="text-black">
-                      {s.nombre}
-                    </option>
-                  ))}
-                </select>
+                <Desplegable
+                  name="sala"
+                  value={nueva.sala}
+                  onChange={cambiar}
+                  opciones={salas.map((x) => ({ valor: x.id, etiqueta: x.nombre }))}
+                />
               </Campo>
               <Campo etiqueta="Precio (S/)">
                 <input name="precio" type="number" min="0" value={nueva.precio} onChange={cambiar} required className={entrada} />
