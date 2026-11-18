@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { CLASIFICACIONES, GENEROS_PELICULA, POSTER, validarPoster } from "../constantes";
 import { usePeliculas } from "../hooks";
+import Pestanas from "../../components/Pestanas/Pestanas";
 import SelectorFecha from "../../components/SelectorFecha/SelectorFecha";
+import TablaDatos from "../../components/TablaDatos/TablaDatos";
 import { hoyLima } from "../../utils/fechas";
-import { BotonIcono, BotonPrimario, Campo, Desplegable, EstadoCarga, Insignia, Modal, Tabla, TituloPagina, Tarjeta, entrada } from "../ui";
-
-const COLUMNAS = ["Película", "Género", "Clasif.", "Estreno", "Tráiler", "Estado", "Acciones"];
+import { BotonFiltros, BotonIcono, BotonPrimario, Campo, Desplegable, EstadoCarga, Insignia, Modal, PanelFiltros, TituloPagina, Tarjeta, entrada } from "../ui";
 
 const FILTROS_VACIOS = { genero: "", clasificacion: "", trailer: "", estreno: "" };
 
@@ -23,7 +23,10 @@ const cumpleFiltros = (p, f, hoy) => {
   return true;
 };
 
-const VACIA = { id: "", titulo: "", genero: "Acción", clasificacion: "", estreno: "", trailerUrl: "", poster: "", posterArchivo: null, activa: true };
+// Largo máximo de la descripción. La tarjeta de la web y el carrusel recortan el texto largo.
+const DESCRIPCION_MAX = 1200;
+
+const VACIA = { id: "", titulo: "", genero: "Acción", descripcion: "", clasificacion: "", estreno: "", trailerUrl: "", poster: "", posterArchivo: null, activa: true };
 
 // Elegir la imagen del póster, con el botón o arrastrándola a la tarjeta. Muestra el actual o la
 // elegida, valida el archivo y avisa que se sube al guardar.
@@ -178,50 +181,81 @@ const Peliculas = () => {
 
   const cambiar = (e) => setEditando({ ...editando, [e.target.name]: e.target.value });
 
-  const filas = (peliculas) =>
-    peliculas.map((p) => (
-      <tr key={p.id} className={p.activa ? "" : "opacity-60"}>
-        <td className="px-5 py-3">
-          <div className="flex items-center gap-3">
-            {p.poster ? (
-              <img src={p.poster} alt="" className="h-14 w-10 shrink-0 rounded-md object-cover" />
-            ) : (
-              <span className="flex h-14 w-10 shrink-0 items-center justify-center rounded-md bg-primary-900 text-primary-400">
-                <i className="bi bi-image" aria-hidden="true" />
-              </span>
-            )}
-            <span className="font-semibold">{p.titulo}</span>
-          </div>
-        </td>
-        <td className="px-5 py-3">{p.genero}</td>
-        <td className="px-5 py-3">{p.clasificacion || "—"}</td>
-        <td className="px-5 py-3">{p.estreno || "—"}</td>
-        <td className="px-5 py-3">
-          {p.trailer ? <i className="bi bi-check-circle-fill text-green-400" aria-label="Tiene tráiler" /> : "—"}
-        </td>
-        <td className="px-5 py-3">
-          <Insignia activa={p.activa} />
-        </td>
-        <td className="px-5 py-3">
-          <div className="flex gap-2">
-            <BotonIcono icono="bi-pencil-fill" etiqueta={`Editar ${p.titulo}`} onClick={() => setEditando({ ...p })} />
-            <BotonIcono
-              icono={p.activa ? "bi-eye-slash-fill" : "bi-eye-fill"}
-              etiqueta={p.activa ? `Ocultar ${p.titulo}` : `Mostrar ${p.titulo}`}
-              onClick={() => alternar(p)}
-            />
-          </div>
-        </td>
-      </tr>
-    ));
+  const columnas = [
+    {
+      titulo: "Película",
+      celda: (p) => (
+        <div className="flex items-center gap-3">
+          {p.poster ? (
+            <img src={p.poster} alt="" className="h-14 w-10 shrink-0 rounded-md object-cover" />
+          ) : (
+            <span className="flex h-14 w-10 shrink-0 items-center justify-center rounded-md bg-primary-900 text-primary-400">
+              <i className="bi bi-image" aria-hidden="true" />
+            </span>
+          )}
+          <span className="font-semibold">{p.titulo}</span>
+        </div>
+      ),
+    },
+    { titulo: "Género", celda: (p) => p.genero },
+    { titulo: "Clasif.", celda: (p) => p.clasificacion || "—" },
+    { titulo: "Estreno", celda: (p) => p.estreno || "—" },
+    {
+      titulo: "Tráiler",
+      celda: (p) => (p.trailer ? <i className="bi bi-check-circle-fill text-green-400" aria-label="Tiene tráiler" /> : "—"),
+    },
+    { titulo: "Estado", celda: (p) => <Insignia activa={p.activa} /> },
+    {
+      titulo: "Acciones",
+      celda: (p) => (
+        <div className="flex gap-2">
+          <BotonIcono icono="bi-pencil-fill" etiqueta={`Editar ${p.titulo}`} onClick={() => setEditando({ ...p })} />
+          <BotonIcono
+            icono={p.activa ? "bi-eye-slash-fill" : "bi-eye-fill"}
+            etiqueta={p.activa ? `Ocultar ${p.titulo}` : `Mostrar ${p.titulo}`}
+            onClick={() => alternar(p)}
+          />
+        </div>
+      ),
+    },
+  ];
 
-  const vacio = (texto) => (
-    <p className="px-5 py-6 text-center text-sm text-primary-100/60">
-      {busqueda.trim() || filtrosActivos > 0 ? "Ninguna película coincide con la búsqueda y los filtros." : texto}
-    </p>
-  );
+  const mensajeVacio = (texto) =>
+    busqueda.trim() || filtrosActivos > 0 ? "Ninguna película coincide con la búsqueda y los filtros." : texto;
 
   const cambiarFiltro = (e) => setFiltros({ ...filtros, [e.target.name]: e.target.value });
+
+  const camposFiltro = [
+    { name: "genero", etiqueta: "Género", opciones: [{ valor: "", etiqueta: "Todos" }, ...generos.map((g) => ({ valor: g, etiqueta: g }))] },
+    {
+      name: "clasificacion",
+      etiqueta: "Clasificación",
+      opciones: [
+        { valor: "", etiqueta: "Todas" },
+        { valor: "ninguna", etiqueta: "Sin clasificación" },
+        ...CLASIFICACIONES.map((c) => ({ valor: c.valor, etiqueta: c.valor, detalle: c.nombre })),
+      ],
+    },
+    {
+      name: "trailer",
+      etiqueta: "Tráiler",
+      opciones: [
+        { valor: "", etiqueta: "Todas" },
+        { valor: "con", etiqueta: "Con tráiler" },
+        { valor: "sin", etiqueta: "Sin tráiler" },
+      ],
+    },
+    {
+      name: "estreno",
+      etiqueta: "Estreno",
+      opciones: [
+        { valor: "", etiqueta: "Todos" },
+        { valor: "proximos", etiqueta: "Próximos estrenos" },
+        { valor: "estrenadas", etiqueta: "Ya estrenadas" },
+        { valor: "sin", etiqueta: "Sin fecha de estreno" },
+      ],
+    },
+  ];
 
   return (
     // En escritorio la página ocupa la pantalla y cada tabla se desplaza por dentro.
@@ -246,22 +280,7 @@ const Peliculas = () => {
               className={`${entrada} pl-11`}
             />
           </div>
-          <button
-            type="button"
-            aria-expanded={verFiltros}
-            onClick={() => setVerFiltros((v) => !v)}
-            className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors ${
-              verFiltros || filtrosActivos > 0
-                ? "border-accent-400 bg-accent-400/10 text-white"
-                : "border-primary-700/60 text-primary-100/80 hover:bg-primary-600 hover:text-white"
-            }`}
-          >
-            <i className="bi bi-funnel-fill" aria-hidden="true" />
-            Filtros
-            {filtrosActivos > 0 && (
-              <span className="rounded-full bg-accent-400 px-2 py-0.5 text-xs font-bold text-black">{filtrosActivos}</span>
-            )}
-          </button>
+          <BotonFiltros abierto={verFiltros} activos={filtrosActivos} onClick={() => setVerFiltros((v) => !v)} />
         </div>
         <p className="text-sm text-primary-100/60">
           {visibles.length} de {lista.length} películas
@@ -269,60 +288,7 @@ const Peliculas = () => {
       </div>
 
       {verFiltros && (
-        <Tarjeta className="p-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Campo etiqueta="Género">
-              <Desplegable
-                name="genero"
-                value={filtros.genero}
-                onChange={cambiarFiltro}
-                opciones={[{ valor: "", etiqueta: "Todos" }, ...generos.map((g) => ({ valor: g, etiqueta: g }))]}
-              />
-            </Campo>
-            <Campo etiqueta="Clasificación">
-              <Desplegable
-                name="clasificacion"
-                value={filtros.clasificacion}
-                onChange={cambiarFiltro}
-                opciones={[
-                  { valor: "", etiqueta: "Todas" },
-                  { valor: "ninguna", etiqueta: "Sin clasificación" },
-                  ...CLASIFICACIONES.map((c) => ({ valor: c.valor, etiqueta: c.valor, detalle: c.nombre })),
-                ]}
-              />
-            </Campo>
-            <Campo etiqueta="Tráiler">
-              <Desplegable
-                name="trailer"
-                value={filtros.trailer}
-                onChange={cambiarFiltro}
-                opciones={[
-                  { valor: "", etiqueta: "Todas" },
-                  { valor: "con", etiqueta: "Con tráiler" },
-                  { valor: "sin", etiqueta: "Sin tráiler" },
-                ]}
-              />
-            </Campo>
-            <Campo etiqueta="Estreno">
-              <Desplegable
-                name="estreno"
-                value={filtros.estreno}
-                onChange={cambiarFiltro}
-                opciones={[
-                  { valor: "", etiqueta: "Todos" },
-                  { valor: "proximos", etiqueta: "Próximos estrenos" },
-                  { valor: "estrenadas", etiqueta: "Ya estrenadas" },
-                  { valor: "sin", etiqueta: "Sin fecha de estreno" },
-                ]}
-              />
-            </Campo>
-          </div>
-          {filtrosActivos > 0 && (
-            <button type="button" onClick={() => setFiltros(FILTROS_VACIOS)} className="mt-4 text-sm font-semibold text-accent-400 hover:underline">
-              Limpiar filtros
-            </button>
-          )}
-        </Tarjeta>
+        <PanelFiltros campos={camposFiltro} valores={filtros} onCambio={cambiarFiltro} onLimpiar={() => setFiltros(FILTROS_VACIOS)} />
       )}
 
       {cargando || error ? (
@@ -330,27 +296,15 @@ const Peliculas = () => {
       ) : (
         <>
           <Tarjeta className="flex min-h-0 flex-col overflow-hidden lg:flex-1">
-            <div role="tablist" aria-label="Películas por estado" className="flex gap-6 border-b border-primary-800/60 px-5">
-              {[
-                ["activas", "En cartelera", activas.length, "bi-eye-fill"],
-                ["desactivadas", "Desactivadas", desactivadas.length, "bi-eye-slash-fill"],
-              ].map(([id, texto, cantidad, icono]) => (
-                <button
-                  key={id}
-                  type="button"
-                  role="tab"
-                  aria-selected={vista === id}
-                  onClick={() => setVista(id)}
-                  className={`-mb-px flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-semibold transition-colors ${
-                    vista === id ? "border-accent-400 text-white" : "border-transparent text-primary-100/60 hover:text-white"
-                  }`}
-                >
-                  <i className={`bi ${icono}`} aria-hidden="true" />
-                  {texto}
-                  <span className="rounded-full bg-primary-600/30 px-2 py-0.5 text-xs">{cantidad}</span>
-                </button>
-              ))}
-            </div>
+            <Pestanas
+              etiqueta="Películas por estado"
+              activa={vista}
+              onCambio={setVista}
+              pestanas={[
+                { id: "activas", texto: "En cartelera", icono: "bi-eye-fill", cantidad: activas.length },
+                { id: "desactivadas", texto: "Desactivadas", icono: "bi-eye-slash-fill", cantidad: desactivadas.length },
+              ]}
+            />
 
             {vista === "desactivadas" && (
               <p className="border-b border-primary-800/60 px-5 py-2 text-xs text-primary-100/50">
@@ -358,13 +312,14 @@ const Peliculas = () => {
               </p>
             )}
 
-            {mostradas.length === 0 ? (
-              vacio(vista === "activas" ? "No hay películas en cartelera." : "No hay películas desactivadas.")
-            ) : (
-              <Tabla className="lg:min-h-0 lg:flex-1" columnas={COLUMNAS}>
-                {filas(mostradas)}
-              </Tabla>
-            )}
+            <TablaDatos
+              className="lg:min-h-0 lg:flex-1"
+              columnas={columnas}
+              filas={mostradas}
+              claveFila={(p) => p.id}
+              claseFila={(p) => (p.activa ? "" : "opacity-60")}
+              vacio={mensajeVacio(vista === "activas" ? "No hay películas en cartelera." : "No hay películas desactivadas.")}
+            />
           </Tarjeta>
         </>
       )}
@@ -374,9 +329,12 @@ const Peliculas = () => {
         onCerrar={() => setEditando(null)}
         titulo={nueva ? "Nueva película" : "Editar película"}
         descripcion="Los cambios se ven en la cartelera en cuanto los guardes."
+        ancho="max-w-5xl"
       >
         {editando && (
-          <form onSubmit={guardar} className="space-y-4">
+          // En escritorio el formulario va en dos columnas para que quepa en la pantalla sin desplazarse.
+          <form onSubmit={guardar} className="grid gap-4 lg:grid-cols-2 lg:gap-x-6">
+            <div className="space-y-4">
             <Campo etiqueta="Título">
               <input name="titulo" value={editando.titulo} onChange={cambiar} required className={entrada} />
             </Campo>
@@ -416,11 +374,6 @@ const Peliculas = () => {
               </p>
             ))}
 
-            <SelectorPoster
-              actual={editando.poster}
-              archivo={editando.posterArchivo}
-              onElegir={(archivo) => setEditando({ ...editando, posterArchivo: archivo })}
-            />
 
             <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-primary-600/60 bg-primary-900/50 px-4 py-3">
               <span>
@@ -441,9 +394,33 @@ const Peliculas = () => {
                 className="relative h-6 w-11 shrink-0 rounded-full bg-surface-600 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform peer-checked:bg-accent-400 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-accent-400 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-primary-950"
               />
             </label>
+            </div>
+
+            <div className="space-y-4">
+            <Campo etiqueta="Descripción">
+              <textarea
+                name="descripcion"
+                value={editando.descripcion}
+                onChange={cambiar}
+                maxLength={DESCRIPCION_MAX}
+                rows={6}
+                placeholder="Sinopsis o frase de la película. Se muestra en la web."
+                className={`${entrada} scroll-cine min-h-24 resize-y leading-relaxed`}
+              />
+              <span className={`mt-1 block text-right text-xs ${editando.descripcion.length >= DESCRIPCION_MAX ? "text-accent-400" : "text-primary-100/50"}`}>
+                {editando.descripcion.length}/{DESCRIPCION_MAX}
+              </span>
+            </Campo>
+
+            <SelectorPoster
+              actual={editando.poster}
+              archivo={editando.posterArchivo}
+              onElegir={(archivo) => setEditando({ ...editando, posterArchivo: archivo })}
+            />
+            </div>
 
             {/* Los botones quedan siempre a la vista, aunque el formulario sea largo */}
-            <div className="sticky bottom-0 -mx-6 !-mb-6 flex justify-end gap-3 border-t border-primary-800/60 bg-primary-950 px-6 pb-6 pt-4">
+            <div className="sticky bottom-0 -mx-6 !-mb-6 flex lg:col-span-2 justify-end gap-3 border-t border-primary-800/60 bg-primary-950 px-6 pb-6 pt-4">
               <button type="button" disabled={guardando} onClick={() => setEditando(null)} className="rounded-full border border-primary-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-600 disabled:opacity-50">
                 Cancelar
               </button>

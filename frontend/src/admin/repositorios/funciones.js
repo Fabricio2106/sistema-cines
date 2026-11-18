@@ -34,6 +34,9 @@ export const funcionesRepo = {
   },
 
   crear: async ({ peliculaId, hora, sala, precio, activa = true }) => {
+    // Regla: no se programan funciones de una película desactivada.
+    const pelicula = await resolver(supabase.from("peliculas").select("activa").eq("id", peliculaId).maybeSingle());
+    if (!pelicula?.activa) throw new Error("No se pueden crear funciones de una película desactivada");
     const fila = await resolver(
       supabase
         .from("funciones")

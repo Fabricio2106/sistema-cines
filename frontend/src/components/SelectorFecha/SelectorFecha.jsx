@@ -37,7 +37,7 @@ const SelectorFecha = ({ name, value, onChange, placeholder = "Elige una fecha",
           align="start"
           sideOffset={6}
           collisionPadding={12}
-          className="z-[70] max-h-[var(--radix-popover-content-available-height)] overflow-y-auto rounded-2xl border border-primary-700/60 bg-primary-950 p-3 text-white shadow-2xl shadow-black/60 focus:outline-none"
+          className="scroll-cine z-[70] max-h-[var(--radix-popover-content-available-height)] overflow-y-auto rounded-2xl border border-primary-700/60 bg-primary-950 p-3 text-white shadow-2xl shadow-black/60 focus:outline-none"
         >
           <Calendario compacto valor={value} onCambio={elegir} desde={desde} hasta={hasta} />
           <div className="mt-2 flex items-center justify-between border-t border-primary-800/60 pt-3 text-sm font-semibold">
